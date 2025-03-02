@@ -1,0 +1,91 @@
+@model IEnumerable<Entities.Concreate.Rooms>
+@{
+    ViewBag.Title = "Oda Yönetimi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <h2>Oda Yönetimi</h2>
+    
+    <div class="mb-3">
+        <a href="@Url.Action("Index", "Admin")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Dashboard'a Dön
+        </a>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-bed mr-1"></i>
+            Oda Durumları
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12 mb-4">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary filter-btn" data-filter="all">Tüm Odalar</button>
+                        <button type="button" class="btn btn-outline-success filter-btn" data-filter="available">Müsait Odalar</button>
+                        <button type="button" class="btn btn-outline-danger filter-btn" data-filter="occupied">Dolu Odalar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row" id="roomsContainer">
+                @foreach (var room in Model)
+                {
+                    string cardClass = room.IsAvaliable ? "border-success" : "border-danger";
+                    string statusClass = room.IsAvaliable ? "badge-success" : "badge-danger";
+                    string statusText = room.IsAvaliable ? "Müsait" : "Dolu";
+                    string filterClass = room.IsAvaliable ? "available" : "occupied";
+                    
+                    <div class="col-md-3 mb-4 room-card @filterClass">
+                        <div class="card @cardClass">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    Oda #@room.RoomNo
+                                    <span class="badge @statusClass float-right">@statusText</span>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <strong>Oda Tipi:</strong> @(room.RoomType != null ? room.RoomType.TypeName : "Belirtilmemiş")
+                                </p>
+                                <p class="card-text">
+                                    <strong>Fiyat:</strong> @(room.RoomType != null ? room.RoomType.TypePrice + " TL" : "Belirtilmemiş")
+                                </p>
+                                <a href="@Url.Action("RoomDetails", "Admin", new { id = room.RoomId })" class="btn btn-info btn-sm">
+                                    <i class="fas fa-info-circle"></i> Detaylar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Oda filtreleme
+            $('.filter-btn').click(function() {
+                var filter = $(this).data('filter');
+                
+                // Aktif buton stilini değiştir
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                // Odaları filtrele
+                if (filter === 'all') {
+                    $('.room-card').show();
+                } else {
+                    $('.room-card').hide();
+                    $('.room-card.' + filter).show();
+                }
+            });
+            
+            // Varsayılan olarak "Tüm Odalar" seçili
+            $('.filter-btn[data-filter="all"]').addClass('active');
+        });
+    </script>
+}

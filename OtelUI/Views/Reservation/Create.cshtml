@@ -1,0 +1,347 @@
+@model OtelUI.Models.ReservationCreateViewModel
+@{
+    ViewBag.Title = "Yeni Rezervasyon Oluştur";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2><i class="fas fa-calendar-plus"></i> Yeni Rezervasyon Oluştur</h2>
+        </div>
+        <div class="card-body">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                </div>
+            }
+
+            @using (Html.BeginForm("Create", "Reservation", FormMethod.Post, new { @class = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h4><i class="fas fa-calendar-alt"></i> Rezervasyon Bilgileri</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    @Html.LabelFor(m => m.EnterDate, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.EnterDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                                    @Html.ValidationMessageFor(m => m.EnterDate, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    @Html.LabelFor(m => m.ExitDate, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.ExitDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                                    @Html.ValidationMessageFor(m => m.ExitDate, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    @Html.LabelFor(m => m.PersonNumber, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.PersonNumber, new { @class = "form-control", type = "number", min = "1", max = "10" })
+                                    @Html.ValidationMessageFor(m => m.PersonNumber, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h4><i class="fas fa-bed"></i> Oda Seçimi</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    @Html.LabelFor(m => m.RoomTypeId, new { @class = "form-label" })
+                                    @Html.DropDownListFor(
+                                        m => m.RoomTypeId,
+                                        new SelectList(Model.RoomTypes, "RoomTypeId", "TypeName"),
+                                        "Oda tipi seçiniz",
+                                        new { @class = "form-select", id = "ddlRoomType" }
+                                    )
+                                    @Html.ValidationMessageFor(m => m.RoomTypeId, "", new { @class = "text-danger" })
+                                    <small class="text-muted">Oda tipi seçerseniz aşağıda fiyatı göreceksiniz.</small>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Seçilen Oda Tipinin Fiyatı</label>
+                                    <div class="input-group">
+                                        <input type="text" id="txtRoomTypePrice" class="form-control" readonly />
+                                        <span class="input-group-text">TL</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    @Html.LabelFor(m => m.SelectedRoomId, new { @class = "form-label" })
+                                    @Html.DropDownListFor(
+                                        m => m.SelectedRoomId,
+                                        new SelectList(Model.AvailableRooms, "RoomId", "RoomNo"),
+                                        "Oda seçiniz",
+                                        new { @class = "form-select", id = "ddlRoom" }
+                                    )
+                                    @Html.ValidationMessageFor(m => m.SelectedRoomId, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-dark">
+                                <h4><i class="fas fa-user"></i> Müşteri Bilgileri</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    @Html.LabelFor(m => m.FirstName, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    @Html.LabelFor(m => m.LastName, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.LastName, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    @Html.LabelFor(m => m.CustomerTc, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.CustomerTc, new { @class = "form-control", maxlength = "11" })
+                                    @Html.ValidationMessageFor(m => m.CustomerTc, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    @Html.LabelFor(m => m.CustomermMail, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.CustomermMail, new { @class = "form-control", type = "email" })
+                                    @Html.ValidationMessageFor(m => m.CustomermMail, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    @Html.LabelFor(m => m.CustomerTel, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.CustomerTel, new { @class = "form-control", type = "tel" })
+                                    @Html.ValidationMessageFor(m => m.CustomerTel, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header bg-secondary text-white">
+                                <h4><i class="fas fa-concierge-bell"></i> Ek Hizmetler</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    <div class="form-check">
+                                        @Html.CheckBoxFor(m => m.HasAdditionalService, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.HasAdditionalService, new { @class = "form-check-label" })
+                                    </div>
+                                </div>
+
+                                <div id="additionalServicesContainer" class="mt-3">
+                                    <p>Birden fazla ek hizmet seçebilirsiniz:</p>
+
+                                    <div class="row">
+                                        @foreach (var service in Model.AdditionalServices)
+                                        {
+                                            <div class="col-md-6 mb-2">
+                                                <div class="form-check">
+                                                    <input type="checkbox"
+                                                        class="form-check-input service-checkbox"
+                                                        name="SelectedAdditionalServiceIDs"
+                                                        id="service-@service.AdditionalServiceID"
+                                                        value="@service.AdditionalServiceID"
+                                                        data-price="@service.ServicePrice" />
+                                                    <label class="form-check-label" for="service-@service.AdditionalServiceID">
+                                                        @service.ServiceName (@service.ServicePrice TL)
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="alert alert-info mt-3">
+                                        <strong>Seçilen Ek Hizmetlerin Toplam Fiyatı: </strong>
+                                        <span id="serviceTotalPrice">0</span> TL
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark text-white">
+                                <h4><i class="fas fa-money-bill-wave"></i> Ödeme Özeti</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p><strong>Konaklama Ücreti:</strong> <span id="accommodationFee">0</span> TL</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Ek Hizmet Ücreti:</strong> <span id="serviceTotalPrice2">0</span> TL</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Toplam Ücret:</strong> <span id="totalFee">0</span> TL</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Rezervasyonu Kaydet
+                    </button>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Vazgeç
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function () {
+            // Ek hizmetler container
+            var hasServiceCheckbox = document.getElementById("HasAdditionalService");
+            var additionalServicesContainer = document.getElementById("additionalServicesContainer");
+
+            // Ek hizmet checkbox'ı değiştiğinde
+            function toggleAdditionalServices() {
+                additionalServicesContainer.style.display = hasServiceCheckbox.checked ? "block" : "none";
+                updateTotalFee();
+            }
+
+            hasServiceCheckbox.addEventListener('change', toggleAdditionalServices);
+            toggleAdditionalServices();
+
+            // Oda tipi değiştiğinde
+            document.getElementById('ddlRoomType').addEventListener('change', function() {
+                var selectedId = this.value;
+                
+                // Oda tipi seçilmemişse
+                if (!selectedId || selectedId === "") {
+                    document.getElementById('txtRoomTypePrice').value = "";
+                    updateTotalFee();
+                    return;
+                }
+
+                // AJAX ile fiyat bilgisini al
+                var url = '@Url.Action("GetRoomTypePrice", "Reservation")' + '?roomTypeId=' + selectedId;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('txtRoomTypePrice').value = data.price;
+                            updateTotalFee();
+                        } else {
+                            document.getElementById('txtRoomTypePrice').value = "";
+                            updateTotalFee();
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Hata: ", error);
+                        document.getElementById('txtRoomTypePrice').value = "";
+                        updateTotalFee();
+                    });
+                
+                // Oda tipine göre odaları filtrele
+                filterRoomsByType(selectedId);
+            });
+
+            // Oda tipine göre odaları filtrele
+            function filterRoomsByType(roomTypeId) {
+                var roomDropdown = document.getElementById('ddlRoom');
+                var options = roomDropdown.options;
+                
+                // Tüm odaları gizle
+                for (var i = 0; i < options.length; i++) {
+                    options[i].style.display = "none";
+                }
+                
+                // İlk seçeneği göster
+                options[0].style.display = "";
+                
+                // Seçilen oda tipine ait odaları göster
+                @foreach (var room in Model.AvailableRooms) {
+                    <text>
+                    if ("@room.RoomTypeId" == roomTypeId) {
+                        for (var i = 0; i < options.length; i++) {
+                            if (options[i].value == "@room.RoomId") {
+                                options[i].style.display = "";
+                            }
+                        }
+                    }
+                    </text>
+                }
+                
+                // Dropdown'ı sıfırla
+                roomDropdown.selectedIndex = 0;
+            }
+
+            // Ek hizmet checkbox'ları
+            var serviceCheckboxes = document.querySelectorAll(".service-checkbox");
+            var serviceTotalSpan = document.getElementById("serviceTotalPrice");
+            var serviceTotalSpan2 = document.getElementById("serviceTotalPrice2");
+
+            // Ek hizmet fiyatlarını topla
+            function updateServiceTotal() {
+                var sum = 0;
+                serviceCheckboxes.forEach(function (cb) {
+                    if (cb.checked) {
+                        var price = parseFloat(cb.getAttribute("data-price")) || 0;
+                        sum += price;
+                    }
+                });
+                
+                serviceTotalSpan.textContent = sum.toFixed(2);
+                serviceTotalSpan2.textContent = sum.toFixed(2);
+                updateTotalFee();
+            }
+
+            // Her checkbox'a event listener ekle
+            serviceCheckboxes.forEach(function (cb) {
+                cb.addEventListener("change", updateServiceTotal);
+            });
+
+            // Tarih değiştiğinde
+            document.getElementById('EnterDate').addEventListener('change', updateTotalFee);
+            document.getElementById('ExitDate').addEventListener('change', updateTotalFee);
+
+            // Toplam ücreti hesapla
+            function updateTotalFee() {
+                var enterDate = new Date(document.getElementById('EnterDate').value);
+                var exitDate = new Date(document.getElementById('ExitDate').value);
+                var roomPrice = parseFloat(document.getElementById('txtRoomTypePrice').value) || 0;
+                var serviceTotal = parseFloat(serviceTotalSpan.textContent) || 0;
+                
+                // Gün sayısını hesapla
+                var days = 0;
+                if (enterDate && exitDate && exitDate >= enterDate) {
+                    days = Math.ceil((exitDate - enterDate) / (1000 * 60 * 60 * 24));
+                }
+                
+                // Konaklama ücretini hesapla
+                var accommodationFee = days * roomPrice;
+                document.getElementById('accommodationFee').textContent = accommodationFee.toFixed(2);
+                
+                // Toplam ücreti hesapla
+                var totalFee = accommodationFee + serviceTotal;
+                document.getElementById('totalFee').textContent = totalFee.toFixed(2);
+            }
+
+            // Sayfa yüklendiğinde toplam ücreti hesapla
+            updateServiceTotal();
+            updateTotalFee();
+        });
+    </script>
+}

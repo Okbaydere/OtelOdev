@@ -1,0 +1,89 @@
+@{
+    ViewBag.Title = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <h2>Admin Dashboard</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Personel</h5>
+                    <p class="card-text">Toplam: @ViewBag.TotalEmployees</p>
+                    <p class="card-text">Aktif: @ViewBag.ActiveEmployees</p>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="@Url.Action("Employees", "Admin")">Detayları Görüntüle</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Odalar</h5>
+                    <p class="card-text">Toplam: @ViewBag.TotalRooms</p>
+                    <p class="card-text">Müsait: @ViewBag.AvailableRooms</p>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="@Url.Action("Rooms", "Admin")">Detayları Görüntüle</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Rezervasyonlar</h5>
+                    <p class="card-text">Toplam: @ViewBag.TotalReservations</p>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="@Url.Action("Reservations", "Admin")">Detayları Görüntüle</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar mr-1"></i>
+                    Hızlı Erişim
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="@Url.Action("EmployeeCreate", "Admin")" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user-plus mr-2"></i> Yeni Personel Ekle
+                        </a>
+                        <a href="@Url.Action("Rooms", "Admin")" class="list-group-item list-group-item-action">
+                            <i class="fas fa-bed mr-2"></i> Oda Durumlarını Görüntüle
+                        </a>
+                        <a href="@Url.Action("Reservations", "Admin")" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-check mr-2"></i> Rezervasyonları Görüntüle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Sistem Bilgileri
+                </div>
+                <div class="card-body">
+                    <p>Otel Yönetim Sistemi - Admin Paneli</p>
+                    <p>Tarih: @DateTime.Now.ToShortDateString()</p>
+                    <p>Saat: @DateTime.Now.ToShortTimeString()</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

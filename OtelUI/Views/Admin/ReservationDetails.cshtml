@@ -1,0 +1,128 @@
+@model Entities.Concreate.Reservation
+@{
+    ViewBag.Title = "Rezervasyon Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <h2>Rezervasyon Detayları</h2>
+    
+    <div class="mb-3">
+        <a href="@Url.Action("Reservations", "Admin")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Rezervasyon Listesine Dön
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-calendar-check mr-1"></i>
+                    Rezervasyon Bilgileri
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Rezervasyon #@Model.ReservationID</h5>
+                    
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Rezervasyon ID</th>
+                            <td>@Model.ReservationID</td>
+                        </tr>
+                        <tr>
+                            <th>Giriş Tarihi</th>
+                            <td>@Model.EnterDate.ToString("dd.MM.yyyy")</td>
+                        </tr>
+                        <tr>
+                            <th>Çıkış Tarihi</th>
+                            <td>@Model.ExitDate.ToString("dd.MM.yyyy")</td>
+                        </tr>
+                        <tr>
+                            <th>Konaklama Süresi</th>
+                            <td>@((Model.ExitDate - Model.EnterDate).Days) gün</td>
+                        </tr>
+                        <tr>
+                            <th>Kişi Sayısı</th>
+                            <td>@Model.PersonNumber</td>
+                        </tr>
+                        <tr>
+                            <th>Toplam Ücret</th>
+                            <td>@Model.Fee.ToString("C")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-user mr-1"></i>
+                    Müşteri Bilgileri
+                </div>
+                <div class="card-body">
+                    @if (Model.Customer != null)
+                    {
+                        <h5 class="card-title">@Model.Customer.CustomerName @Model.Customer.CustomerSurName</h5>
+                        
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Müşteri ID</th>
+                                <td>@Model.Customer.CustomerID</td>
+                            </tr>
+                            <tr>
+                                <th>TC Kimlik No</th>
+                                <td>@Model.Customer.CustomerTc</td>
+                            </tr>
+                            <tr>
+                                <th>Telefon</th>
+                                <td>@Model.Customer.CustomerTel</td>
+                            </tr>
+                            <tr>
+                                <th>E-posta</th>
+                                <td>@Model.Customer.CustomermMail</td>
+                            </tr>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            Bu rezervasyon için müşteri bilgisi bulunamadı.
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            @if (Model.AdditionalService != null)
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-concierge-bell mr-1"></i>
+                        Ek Hizmet Bilgileri
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@Model.AdditionalService.ServiceName</h5>
+                        
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Hizmet ID</th>
+                                <td>@Model.AdditionalService.ServiceID</td>
+                            </tr>
+                            <tr>
+                                <th>Hizmet Adı</th>
+                                <td>@Model.AdditionalService.ServiceName</td>
+                            </tr>
+                            <tr>
+                                <th>Hizmet Ücreti</th>
+                                <td>@Model.AdditionalService.ServicePrice.ToString("C")</td>
+                            </tr>
+                            <tr>
+                                <th>Açıklama</th>
+                                <td>@Model.AdditionalService.ServiceDescription</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

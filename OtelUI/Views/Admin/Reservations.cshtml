@@ -1,0 +1,76 @@
+@model IEnumerable<Entities.Concreate.Reservation>
+@{
+    ViewBag.Title = "Rezervasyonlar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <h2>Rezervasyon Yönetimi</h2>
+    
+    <div class="mb-3">
+        <a href="@Url.Action("Index", "Admin")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Dashboard'a Dön
+        </a>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-calendar-check mr-1"></i>
+            Rezervasyon Listesi
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="reservationsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Müşteri</th>
+                            <th>Giriş Tarihi</th>
+                            <th>Çıkış Tarihi</th>
+                            <th>Kişi Sayısı</th>
+                            <th>Ücret</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var reservation in Model)
+                        {
+                            <tr>
+                                <td>@reservation.ReservationID</td>
+                                <td>
+                                    @if (reservation.Customer != null)
+                                    {
+                                        @(reservation.Customer.CustomerName + " " + reservation.Customer.CustomerSurName)
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Belirtilmemiş</span>
+                                    }
+                                </td>
+                                <td>@reservation.EnterDate.ToShortDateString()</td>
+                                <td>@reservation.ExitDate.ToShortDateString()</td>
+                                <td>@reservation.PersonNumber</td>
+                                <td>@reservation.Fee.ToString("C")</td>
+                                <td>
+                                    <a href="@Url.Action("ReservationDetails", "Admin", new { id = reservation.ReservationID })" class="btn btn-sm btn-info">
+                                        <i class="fas fa-info-circle"></i> Detaylar
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#reservationsTable').DataTable({
+                "order": [[2, "desc"]] // Giriş tarihine göre sırala (en yeni üstte)
+            });
+        });
+    </script>
+}

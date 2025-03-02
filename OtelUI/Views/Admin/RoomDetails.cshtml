@@ -1,0 +1,116 @@
+@model Entities.Concreate.Rooms
+@{
+    ViewBag.Title = "Oda Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <h2>Oda Detayları</h2>
+    
+    <div class="mb-3">
+        <a href="@Url.Action("Rooms", "Admin")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Oda Listesine Dön
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-bed mr-1"></i>
+                    Oda Bilgileri
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Oda #@Model.RoomNo</h5>
+                    <div class="mb-3">
+                        <span class="badge @(Model.IsAvaliable ? "badge-success" : "badge-danger") p-2">
+                            @(Model.IsAvaliable ? "Müsait" : "Dolu")
+                        </span>
+                    </div>
+                    
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Oda Numarası</th>
+                            <td>@Model.RoomNo</td>
+                        </tr>
+                        <tr>
+                            <th>Oda ID</th>
+                            <td>@Model.RoomId</td>
+                        </tr>
+                        <tr>
+                            <th>Oda Tipi</th>
+                            <td>@(Model.RoomType != null ? Model.RoomType.TypeName : "Belirtilmemiş")</td>
+                        </tr>
+                        <tr>
+                            <th>Fiyat</th>
+                            <td>@(Model.RoomType != null ? Model.RoomType.TypePrice + " TL" : "Belirtilmemiş")</td>
+                        </tr>
+                        <tr>
+                            <th>Açıklama</th>
+                            <td>@(Model.RoomType != null ? Model.RoomType.Features : "Belirtilmemiş")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Oda Özellikleri
+                </div>
+                <div class="card-body">
+                    @if (Model.RoomType != null)
+                    {
+                        <h5>@Model.RoomType.TypeName Özellikleri</h5>
+                        <p>@Model.RoomType.Features</p>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><i class="fas fa-users"></i> Kapasite</h5>
+                                        <p class="card-text">@(Model.RoomType.Capacity ?? 0) Kişi</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card bg-light mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><i class="fas fa-tag"></i> Fiyat</h5>
+                                        <p class="card-text">@(Model.RoomType.TypePrice) TL</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            Bu oda için oda tipi bilgisi bulunamadı.
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            @if (!Model.IsAvaliable)
+            {
+                <div class="card mb-4 border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        Rezervasyon Bilgisi
+                    </div>
+                    <div class="card-body">
+                        <p>Bu oda şu anda rezerve edilmiş durumda.</p>
+                        <p>Rezervasyon detaylarını görmek için rezervasyonlar sayfasını kontrol edin.</p>
+                        <a href="@Url.Action("Reservations", "Admin")" class="btn btn-outline-danger">
+                            <i class="fas fa-calendar-check"></i> Rezervasyonları Görüntüle
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
