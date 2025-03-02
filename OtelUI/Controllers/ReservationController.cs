@@ -30,13 +30,13 @@ namespace OtelUI.Controllers
         // GET: Reservation/Create
         public ActionResult Create()
         {
-            // 1) Tüm oda tiplerini al
+            // 1) Tüm oda tiplerini alıyoruz
             var allRoomTypes = _roomtypeManager.RoomTypeliste();
 
-            // 2) Tüm odaları al
+            // 2) Tüm odaları alıyoruz
             var allRooms = _roomManager.Roomsliste();
 
-            // 3) Tüm ek hizmetleri al
+            // 3) Tüm ek hizmetleri alıyoruz
             var allServices = _serviceManager.AdditionalServiceliste();
 
             // 4) Aktif oda tiplerini filtrele
@@ -72,21 +72,13 @@ namespace OtelUI.Controllers
                 if (!ModelState.IsValid)
                 {
                     // Hatalı form için listeleri tekrar doldur
-                    model.RoomTypes = _roomtypeManager.RoomTypeliste() ?? new List<RoomType>();
-                    model.AdditionalServices = _serviceManager.AdditionalServiceliste() ?? new List<AdditionalService>();
-                    model.AvailableRooms = _roomManager.Roomsliste().Where(r => r.IsAvaliable).ToList() ?? new List<Rooms>();
+                    model.RoomTypes = _roomtypeManager.RoomTypeliste();
+                    model.AdditionalServices = _serviceManager.AdditionalServiceliste();
+                    model.AvailableRooms = _roomManager.Roomsliste().Where(r => r.IsAvaliable).ToList();
                     return View(model);
                 }
 
-                // Çift gönderim kontrolü
-                if (TempData["LastSubmittedReservation"] != null && 
-                    TempData["LastSubmittedReservation"].ToString() == $"{model.CustomerTc}_{model.SelectedRoomId}_{model.EnterDate.ToString("yyyyMMdd")}_{model.ExitDate.ToString("yyyyMMdd")}")
-                {
-                    // Bu rezervasyon zaten gönderilmiş, yönlendirme yap
-                    TempData["SuccessMessage"] = "Rezervasyon zaten işlendi!";
-                    return RedirectToAction("Index");
-                }
-
+              
                 // 1) Müşteri kontrolü
                 if (string.IsNullOrEmpty(model.CustomerTc))
                 {
@@ -132,7 +124,7 @@ namespace OtelUI.Controllers
                 // Aynı tarih aralığında başka rezervasyon var mı kontrol et
                 var existingReservations = r.Reservationliste().Where(res => res.RoomId == model.SelectedRoomId.Value).ToList();
                 var hasConflict = existingReservations.Any(res =>
-                    (model.EnterDate >= res.EnterDate && model.EnterDate < res.ExitDate) ||
+                    (model.EnterDate >= res.EnterDate && model.EnterDate < res.ExitDate) || 
                     (model.ExitDate > res.EnterDate && model.ExitDate <= res.ExitDate) ||
                     (model.EnterDate <= res.EnterDate && model.ExitDate >= res.ExitDate));
 
@@ -170,18 +162,14 @@ namespace OtelUI.Controllers
                         }
                     }
                 }
-
-                // Çift gönderim kontrolü için rezervasyon bilgisini sakla
-                TempData["LastSubmittedReservation"] = $"{model.CustomerTc}_{model.SelectedRoomId}_{model.EnterDate.ToString("yyyyMMdd")}_{model.ExitDate.ToString("yyyyMMdd")}";
-                TempData["SuccessMessage"] = "Rezervasyon başarıyla oluşturuldu!";
                 return RedirectToAction("Confirmation", new { id = newReservation.ReservationID });
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Rezervasyon oluşturulurken bir hata oluştu: " + ex.Message);
-                model.RoomTypes = _roomtypeManager.RoomTypeliste() ?? new List<RoomType>();
-                model.AdditionalServices = _serviceManager.AdditionalServiceliste() ?? new List<AdditionalService>();
-                model.AvailableRooms = _roomManager.Roomsliste().Where(r => r.IsAvaliable).ToList() ?? new List<Rooms>();
+                model.RoomTypes = _roomtypeManager.RoomTypeliste();
+                model.AdditionalServices = _serviceManager.AdditionalServiceliste();
+                model.AvailableRooms = _roomManager.Roomsliste().Where(r => r.IsAvaliable).ToList();
                 return View(model);
             }
         }
@@ -222,7 +210,7 @@ namespace OtelUI.Controllers
         }
 
         // GET: Reservation/Create
-        public JsonResult GetRoomTypePrice(int roomTypeId)
+        public JsonResult GetRoomTypePrice(int roomTypeId) // fiyatlar dinamik olarak değiştiği için Json oldu
         {
             // Manager veya Repository üzerinden oda tipini çek
             var roomType = _roomtypeManager.GetById(roomTypeId);
@@ -273,12 +261,7 @@ namespace OtelUI.Controllers
             }
         }
 
-        // Rezervasyonları listelemek için
-        public ActionResult Index()
-        {
-            var reservations = r.Reservationliste();
-            return View(reservations);
-        }
+ 
         
         // Rezervasyon onay sayfası
         public ActionResult Confirmation(int? id)

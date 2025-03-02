@@ -62,8 +62,8 @@ namespace OtelUI.Models
         
         [Display(Name = "Seçilen Ek Hizmetler")]
         public List<int> SelectedAdditionalServiceIDs { get; set; }
-       
-        // Mevcut alanlarınız (EnterDate, ExitDate, CustomerId, vs.)
+  
+
 
         // Birden fazla ek hizmet seçimi için:
         public IEnumerable<AdditionalService> AdditionalServices { get; set; }
