@@ -1,4 +1,4 @@
-﻿using Business.Abstract;
+using Business.Abstract;
 using Data.Abstract;
 using Data.EntityFramwork;
 using Entities.Concreate;
@@ -17,9 +17,10 @@ namespace Business.Concreate
         {
             _customerdal = customerDal;
         }
-        void ICustomerService.CustomerDelete(Customer c)
+
+        public void CustomerDelete(Customer c)
         {
-            throw new NotImplementedException();
+            _customerdal.Delete(c);
         }
 
         public void CustomerInsert(Customer customer)
@@ -27,19 +28,24 @@ namespace Business.Concreate
             _customerdal.Insert(customer);
         }
 
-        List<Customer> ICustomerService.Customerliste()
+        public List<Customer> Customerliste()
         {
-            throw new NotImplementedException();
+            return _customerdal.liste();
         }
 
-        void ICustomerService.CustomerUpdate(Customer c)
+        public void CustomerUpdate(Customer c)
         {
-            throw new NotImplementedException();
+            _customerdal.Update(c);
         }
 
         public Customer GetById(int id)
         {
-             return _customerdal.Get(x => x.CustomerID == id);
+            return _customerdal.Get(x => x.CustomerID == id);
+        }
+
+        public Customer GetByTc(string tc)
+        {
+            return _customerdal.Get(x => x.CustomerTc == tc);
         }
     }
 }

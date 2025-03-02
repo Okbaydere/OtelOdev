@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 
 namespace Data.Abstract
 {
-    public interface IGenericRepostory<T>
+    public interface IGenericRepostory<T> where T : class
     {
-        List<T> liste();
         void Insert(T entity);
-        void Update(T entity);
         void Delete(T entity);
-        T Get(Expression<Func<T, bool>> filter);
+        void Update(T entity);
+        List<T> liste();
         List<T> liste(Expression<Func<T, bool>> filter);
+        T Get(Expression<Func<T, bool>> filter);
+        T GetWithIncludes(Expression<Func<T, bool>> filter, params string[] includes);
+        List<T> ListWithIncludes(Expression<Func<T, bool>> filter = null, params string[] includes);
     }
 }

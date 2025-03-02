@@ -46,7 +46,7 @@
                         </tr>
                         <tr>
                             <th>Toplam Ücret</th>
-                            <td>@Model.Fee.ToString("C")</td>
+                            <td>@(Model.Fee.HasValue ? Model.Fee.Value.ToString("C") : "Belirtilmemiş")</td>
                         </tr>
                     </table>
                 </div>
@@ -92,7 +92,7 @@
                 </div>
             </div>
             
-            @if (Model.AdditionalService != null)
+            @if (Model.AdditionalServices != null && Model.AdditionalServices.Any())
             {
                 <div class="card mb-4">
                     <div class="card-header">
@@ -100,25 +100,26 @@
                         Ek Hizmet Bilgileri
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">@Model.AdditionalService.ServiceName</h5>
+                        <h5 class="card-title">Ek Hizmetler</h5>
                         
                         <table class="table table-bordered">
-                            <tr>
-                                <th>Hizmet ID</th>
-                                <td>@Model.AdditionalService.ServiceID</td>
-                            </tr>
-                            <tr>
-                                <th>Hizmet Adı</th>
-                                <td>@Model.AdditionalService.ServiceName</td>
-                            </tr>
-                            <tr>
-                                <th>Hizmet Ücreti</th>
-                                <td>@Model.AdditionalService.ServicePrice.ToString("C")</td>
-                            </tr>
-                            <tr>
-                                <th>Açıklama</th>
-                                <td>@Model.AdditionalService.ServiceDescription</td>
-                            </tr>
+                            <thead>
+                                <tr>
+                                    <th>Hizmet ID</th>
+                                    <th>Hizmet Adı</th>
+                                    <th>Fiyat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var service in Model.AdditionalServices)
+                                {
+                                    <tr>
+                                        <td>@service.AdditionalServiceID</td>
+                                        <td>@service.ServiceName</td>
+                                        <td>@(service.ServicePrice.HasValue ? service.ServicePrice.Value.ToString("C") : "Belirtilmemiş")</td>
+                                    </tr>
+                                }
+                            </tbody>
                         </table>
                     </div>
                 </div>

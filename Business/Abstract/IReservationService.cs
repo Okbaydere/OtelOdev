@@ -1,4 +1,4 @@
-﻿using Entities.Concreate;
+using Entities.Concreate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +11,8 @@ namespace Business.Abstract
     {
         List<Reservation> Reservationliste();
         void ReservationInsert(Reservation r);
-        void ReservationUpdate(Reservation r );
         void ReservationDelete(Reservation r);
+        void ReservationUpdate(Reservation r);
         Reservation GetById(int id);
     }
 }

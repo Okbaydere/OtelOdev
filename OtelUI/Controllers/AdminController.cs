@@ -10,7 +10,8 @@ using System.Web.Mvc;
 
 namespace OtelUI.Controllers
 {
-    public class AdminController : Controller
+    [Authorize]
+    public class AdminController : BaseController
     {
         // Manager nesneleri
         private readonly EmployeeManager _employeeManager;
@@ -23,6 +24,23 @@ namespace OtelUI.Controllers
             _employeeManager = new EmployeeManager(new EfEmployeesDal());
             _roomManager = new RoomManager(new EfRoomsDal());
             _reservationManager = new ReservationManager(new EfReservationDal());
+        }
+
+        // Admin yetkisi kontrolü
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
+
+            // Kullanıcı giriş yapmış mı kontrol et
+            if (User.Identity.IsAuthenticated)
+            {
+                // Kullanıcının rolü Admin mi kontrol et
+                if (Session["EmployeeTask"] == null || Session["EmployeeTask"].ToString() != "Admin")
+                {
+                    // Admin değilse erişim reddedildi sayfasına yönlendir
+                    filterContext.Result = new RedirectResult("~/Account/AccessDenied");
+                }
+            }
         }
 
         // GET: Admin
@@ -168,6 +186,13 @@ namespace OtelUI.Controllers
                 return HttpNotFound();
             }
             return View(reservation);
+        }
+
+        // Rezervasyonları listele
+        public ActionResult ReservationsList()
+        {
+            var reservations = _reservationManager.Reservationliste();
+            return View(reservations);
         }
 
         #endregion

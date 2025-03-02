@@ -38,9 +38,16 @@
                             <tr>
                                 <td>@reservation.ReservationID</td>
                                 <td>
-                                    @if (reservation.Customer != null)
+                                    @if (reservation.CustomerID.HasValue)
                                     {
-                                        @(reservation.Customer.CustomerName + " " + reservation.Customer.CustomerSurName)
+                                        if (reservation.Customer != null)
+                                        {
+                                            @(reservation.Customer.CustomerName + " " + reservation.Customer.CustomerSurName)
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Müşteri ID: @reservation.CustomerID</span>
+                                        }
                                     }
                                     else
                                     {
@@ -50,7 +57,7 @@
                                 <td>@reservation.EnterDate.ToShortDateString()</td>
                                 <td>@reservation.ExitDate.ToShortDateString()</td>
                                 <td>@reservation.PersonNumber</td>
-                                <td>@reservation.Fee.ToString("C")</td>
+                                <td>@(reservation.Fee.HasValue ? reservation.Fee.Value.ToString("C") : "Belirtilmemiş")</td>
                                 <td>
                                     <a href="@Url.Action("ReservationDetails", "Admin", new { id = reservation.ReservationID })" class="btn btn-sm btn-info">
                                         <i class="fas fa-info-circle"></i> Detaylar

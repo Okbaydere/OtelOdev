@@ -1,0 +1,161 @@
+# ASP.NET MVC / .NET Core için .gitignore
+
+## Visual Studio tarafından oluşturulan dosyalar
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.dbmdl
+*.dbproj.schemaview
+*.pfx
+*.publishsettings
+node_modules/
+orleans.codegen.cs
+
+## Derleme çıktıları
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## MSTest çıktıları
+TestResults/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+## NuGet paketleri
+/packages/*
+!packages/repositories.config
+!packages/build/
+*.nupkg
+**/packages/*
+*.nuget.props
+*.nuget.targets
+
+## Visual Studio proje dosyaları
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+## Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+## Visual Studio IntelliCode
+.vs/
+
+## ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+## JustCode
+.JustCode
+
+## TeamCity
+_TeamCity*
+
+## DotCover
+*.dotCover
+
+## NCrunch
+_NCrunch_*
+.*crunch*.local.xml
+nCrunchTemp_*
+
+## MightyMoose
+*.mm.*
+AutoTest.Net/
+
+## Web workbench (sass)
+.sass-cache/
+
+## Installshield output folder
+[Ee]xpress/
+
+## DocProject
+DocProject/buildhelp/
+DocProject/Help/*.HxT
+DocProject/Help/*.HxC
+DocProject/Help/*.hhc
+DocProject/Help/*.hhk
+DocProject/Help/*.hhp
+DocProject/Help/Html2
+DocProject/Help/html
+
+## Click-Once directory
+publish/
+
+## Publish Web Output
+*.[Pp]ublish.xml
+*.azurePubxml
+*.pubxml
+*.publishproj
+
+## Microsoft Azure Web App publish settings
+PublishScripts/
+
+## Özel dosyalar
+App_Data/*.mdf
+App_Data/*.ldf
+App_Data/*.sdf
+
+## Windows depo dosyaları
+$RECYCLE.BIN/
+Desktop.ini
+Thumbs.db
+ehthumbs.db
+
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+## Linux
+*~
+
+## Proje özel
+# Appsettings.json dosyasındaki hassas bilgiler (connection string vs.)
+# appsettings.Development.json
+# appsettings.Production.json
+
+## Diğer
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

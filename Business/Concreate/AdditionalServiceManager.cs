@@ -1,4 +1,4 @@
-﻿using Business.Abstract;
+using Business.Abstract;
 using Data.Abstract;
 using Data.EntityFramwork;
 using Entities.Concreate;
@@ -35,7 +35,7 @@ namespace Business.Concreate
 
         public void AdditionalUpdate(AdditionalService ad)
         {
-            throw new NotImplementedException();
+            _additionalService.Update(ad);
         }
 
         public AdditionalService GetById(int id)

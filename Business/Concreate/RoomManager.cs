@@ -1,4 +1,4 @@
-﻿using Business.Abstract;
+using Business.Abstract;
 using Data.Abstract;
 using Data.EntityFramwork;
 using Entities.Concreate;
@@ -39,7 +39,7 @@ namespace Business.Concreate
 
         public void RoomsUpdate(Rooms r)
         {
-            throw new NotImplementedException();
+            _roomsdal.Update(r);
         }
     }
 }

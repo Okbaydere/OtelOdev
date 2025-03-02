@@ -6,58 +6,43 @@ using Entities.Concreate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using Business.Abstract;
 
 namespace OtelUI.Controllers
 {
     public class ReservationController : Controller
     {
-        // Manager örnekleri
-        ReservationManager r = new ReservationManager(new EfReservationDal());
-        CustomerManager _customerManager = new CustomerManager(new EfCustomerDal());
-        AdditionalServiceManager _serviceManager = new AdditionalServiceManager(new EfAdditionalServiceDal());
-        RoomTypeManager _roomtypeManager=new RoomTypeManager(new EfRoomTypeDal());
-        RoomManager _roomManager = new RoomManager(new EfRoomsDal());
+        private readonly RoomManager _roomManager;
+        private readonly CustomerManager _customerManager;
+        private readonly ReservationManager r;
+        private readonly RoomTypeManager _roomtypeManager;
+        private readonly AdditionalServiceManager _serviceManager;
 
-
-        public JsonResult GetRoomTypePrice(int roomTypeId)
+        public ReservationController()
         {
-            // Manager veya Repository üzerinden oda tipini çek
-            var roomType = _roomtypeManager.GetById(roomTypeId);
-            if (roomType != null)
-            {
-                return Json(new { success = true, price = roomType.TypePrice }, JsonRequestBehavior.AllowGet);
-            }
-
-            // Oda tipi bulunamadıysa
-            return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+            _roomManager = new RoomManager(new EfRoomsDal());
+            _customerManager = new CustomerManager(new EfCustomerDal());
+            r = new ReservationManager(new EfReservationDal());
+            _roomtypeManager = new RoomTypeManager(new EfRoomTypeDal());
+            _serviceManager = new AdditionalServiceManager(new EfAdditionalServiceDal());
         }
 
         // GET: Reservation/Create
         public ActionResult Create()
         {
-            // 1) Tüm oda tiplerini çek
-            var allRoomTypes = _roomtypeManager.RoomTypeliste() ?? new List<RoomType>(); ;
-            // Bu listede Rooms yüklenmedi, sadece RoomType tablosu var
+            // 1) Tüm oda tiplerini al
+            var allRoomTypes = _roomtypeManager.RoomTypeliste();
 
-            // 2) Tüm odaları çek
-            var allRooms = _roomManager.Roomsliste() ?? new List<Rooms>(); ;
-            // IsAvailable = true/false hepsi gelir
+            // 2) Tüm odaları al
+            var allRooms = _roomManager.Roomsliste();
 
-            // 3) IsAvailable = true olan odaların RoomTypeId değerlerini al
-            var availableTypeIds = allRooms
-                .Where(r => r.IsAvaliable == true)
-                .Select(r => r.RoomTypeId)
-                .Distinct()
-                .ToList();
-
-            // 4) Oda tipleri arasında, availableTypeIds içinde olanları filtrele
-            var filteredRoomTypes = allRoomTypes
-                .Where(rt => availableTypeIds.Contains(rt.RoomTypeId))
-                .ToList();
+            // 3) Tüm ek hizmetleri al
             var allServices = _serviceManager.AdditionalServiceliste();
+
+            // 4) Aktif oda tiplerini filtrele
+            var filteredRoomTypes = allRoomTypes
+                .Where(rt => allRooms.Any(r => r.RoomTypeId == rt.RoomTypeId && r.IsAvaliable))
+                .ToList();
 
             // 5) Müsait odaları al
             var availableRooms = allRooms
@@ -82,59 +67,100 @@ namespace OtelUI.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(ReservationCreateViewModel model)
         {
-            // Model validation (eğer DataAnnotations kullandıysanız)
-            if (!ModelState.IsValid)
-            {
-                // Hatalı form için listeleri tekrar doldur
-                model.RoomTypes = _roomtypeManager.RoomTypeliste() ?? new List<RoomType>();
-                model.AdditionalServices = _serviceManager.AdditionalServiceliste() ?? new List<AdditionalService>();
-                model.AvailableRooms = _roomManager.Roomsliste().Where(r => r.IsAvaliable).ToList();
-                
-                // Hatalı formu geri döndür
-                return View(model);
-            }
-
             try
             {
-                // 1) CUSTOMER OLUŞTUR
-                Customer customer = new Customer
+                if (!ModelState.IsValid)
                 {
-                    CustomerName = model.FirstName,
-                    CustomerSurName = model.LastName,
-                    CustomerTel = model.CustomerTel,
-                    CustomerTc = model.CustomerTc,
-                    CustomermMail = model.CustomermMail
-                };
+                    // Hatalı form için listeleri tekrar doldur
+                    model.RoomTypes = _roomtypeManager.RoomTypeliste() ?? new List<RoomType>();
+                    model.AdditionalServices = _serviceManager.AdditionalServiceliste() ?? new List<AdditionalService>();
+                    model.AvailableRooms = _roomManager.Roomsliste().Where(r => r.IsAvaliable).ToList();
+                    return View(model);
+                }
 
-                _customerManager.CustomerInsert(customer);
+                // Çift gönderim kontrolü
+                if (TempData["LastSubmittedReservation"] != null && 
+                    TempData["LastSubmittedReservation"].ToString() == $"{model.CustomerTc}_{model.SelectedRoomId}_{model.EnterDate.ToString("yyyyMMdd")}_{model.ExitDate.ToString("yyyyMMdd")}")
+                {
+                    // Bu rezervasyon zaten gönderilmiş, yönlendirme yap
+                    TempData["SuccessMessage"] = "Rezervasyon zaten işlendi!";
+                    return RedirectToAction("Index");
+                }
 
-                // 2) RESERVATION NESNESİ OLUŞTUR
+                // 1) Müşteri kontrolü
+                if (string.IsNullOrEmpty(model.CustomerTc))
+                {
+                    ModelState.AddModelError("", "TC Kimlik numarası gereklidir.");
+                    return View(model);
+                }
+
+                var existingCustomer = _customerManager.GetByTc(model.CustomerTc);
+                if (existingCustomer != null)
+                {
+                    // Mevcut müşteriyi kullan
+                    model.CustomerId = existingCustomer.CustomerID;
+                }
+                else
+                {
+                    // Yeni müşteri oluştur
+                    var newCustomer = new Customer
+                    {
+                        CustomerTc = model.CustomerTc,
+                        CustomerName = model.FirstName,
+                        CustomerSurName = model.LastName,
+                        CustomermMail = model.CustomermMail,
+                        CustomerTel = model.CustomerTel
+                    };
+                    _customerManager.CustomerInsert(newCustomer);
+                    model.CustomerId = newCustomer.CustomerID;
+                }
+
+                // 2) Oda müsait mi kontrol et
+                if (!model.SelectedRoomId.HasValue)
+                {
+                    ModelState.AddModelError("", "Lütfen bir oda seçin.");
+                    return View(model);
+                }
+
+                var selectedRoom = _roomManager.GetById(model.SelectedRoomId.Value);
+                if (selectedRoom == null || !selectedRoom.IsAvaliable)
+                {
+                    ModelState.AddModelError("", "Seçilen oda müsait değil.");
+                    return View(model);
+                }
+
+                // Aynı tarih aralığında başka rezervasyon var mı kontrol et
+                var existingReservations = r.Reservationliste().Where(res => res.RoomId == model.SelectedRoomId.Value).ToList();
+                var hasConflict = existingReservations.Any(res =>
+                    (model.EnterDate >= res.EnterDate && model.EnterDate < res.ExitDate) ||
+                    (model.ExitDate > res.EnterDate && model.ExitDate <= res.ExitDate) ||
+                    (model.EnterDate <= res.EnterDate && model.ExitDate >= res.ExitDate));
+
+                if (hasConflict)
+                {
+                    ModelState.AddModelError("", "Seçilen tarih aralığında bu oda için başka bir rezervasyon bulunmaktadır.");
+                    return View(model);
+                }
+
+                // 3) Rezervasyon oluştur
                 var newReservation = new Reservation
                 {
                     EnterDate = model.EnterDate,
                     ExitDate = model.ExitDate,
                     Fee = CalculateReservationFee(model),
                     PersonNumber = model.PersonNumber ?? 1,
-                    CustomerID = customer.CustomerID,
+                    CustomerID = model.CustomerId,
                     RoomId = model.SelectedRoomId
                 };
 
-                // 3) Rezervasyonu kaydet
+                // 4) Rezervasyonu kaydet
                 r.ReservationInsert(newReservation);
 
-                // 4) Seçilen odayı rezerve et
-                if (model.SelectedRoomId.HasValue)
-                {
-                    var room = _roomManager.GetById(model.SelectedRoomId.Value);
-                    if (room != null)
-                    {
-                        room.IsAvaliable = false;
-                        room.ReservationID = newReservation.ReservationID;
-                        _roomManager.RoomsUpdate(room);
-                    }
-                }
+                // 5) Odayı rezerve et
+                selectedRoom.IsAvaliable = false;
+                _roomManager.RoomsUpdate(selectedRoom);
 
-                // 5) Ek hizmetleri rezervasyona bağla
+                // 6) Ek hizmetleri bağla
                 if (model.SelectedAdditionalServiceIDs != null && model.SelectedAdditionalServiceIDs.Any())
                 {
                     foreach (var serviceId in model.SelectedAdditionalServiceIDs)
@@ -148,19 +174,17 @@ namespace OtelUI.Controllers
                     }
                 }
 
-                // Başarılı kayıt sonrası Index sayfasına yönlendir
+                // Çift gönderim kontrolü için rezervasyon bilgisini sakla
+                TempData["LastSubmittedReservation"] = $"{model.CustomerTc}_{model.SelectedRoomId}_{model.EnterDate.ToString("yyyyMMdd")}_{model.ExitDate.ToString("yyyyMMdd")}";
                 TempData["SuccessMessage"] = "Rezervasyon başarıyla oluşturuldu!";
-                return RedirectToAction("Index");
+                return RedirectToAction("Confirmation", new { id = newReservation.ReservationID });
             }
             catch (Exception ex)
             {
-                // Hata durumunda listeleri tekrar doldur
+                ModelState.AddModelError("", "Rezervasyon oluşturulurken bir hata oluştu: " + ex.Message);
                 model.RoomTypes = _roomtypeManager.RoomTypeliste() ?? new List<RoomType>();
                 model.AdditionalServices = _serviceManager.AdditionalServiceliste() ?? new List<AdditionalService>();
                 model.AvailableRooms = _roomManager.Roomsliste().Where(r => r.IsAvaliable).ToList();
-                
-                // Hata mesajı göster
-                ModelState.AddModelError("", "Kayıt oluşturulurken hata oluştu: " + ex.Message);
                 return View(model);
             }
         }
@@ -170,22 +194,15 @@ namespace OtelUI.Controllers
         {
             decimal totalFee = 0;
 
-            // 1. Oda ücreti hesapla
-            if (model.RoomTypeId > 0)
+            // 1) Oda tipi fiyatını al
+            var roomType = _roomtypeManager.GetById(model.RoomTypeId);
+            if (roomType != null && roomType.TypePrice.HasValue)
             {
-                var roomType = _roomtypeManager.GetById(model.RoomTypeId);
-                if (roomType != null && roomType.TypePrice.HasValue)
-                {
-                    // Gün sayısını hesapla
-                    int days = (int)(model.ExitDate - model.EnterDate).TotalDays;
-                    if (days <= 0) days = 1; // En az 1 gün
-
-                    totalFee += roomType.TypePrice.Value * days;
-                }
+                totalFee += roomType.TypePrice.Value;
             }
 
-            // 2. Ek hizmet ücretlerini ekle
-            if (model.SelectedAdditionalServiceIDs != null && model.SelectedAdditionalServiceIDs.Any())
+            // 2) Seçilen ek hizmetlerin fiyatlarını ekle
+            if (model.SelectedAdditionalServiceIDs != null)
             {
                 foreach (var serviceId in model.SelectedAdditionalServiceIDs)
                 {
@@ -197,7 +214,66 @@ namespace OtelUI.Controllers
                 }
             }
 
+            // 3) Konaklama süresini hesapla
+            var days = (model.ExitDate - model.EnterDate).Days;
+            if (days <= 0) days = 1;
+
+            // 4) Toplam ücreti konaklama süresiyle çarp
+            totalFee *= days;
+
             return (int)totalFee;
+        }
+
+        // GET: Reservation/Create
+        public JsonResult GetRoomTypePrice(int roomTypeId)
+        {
+            // Manager veya Repository üzerinden oda tipini çek
+            var roomType = _roomtypeManager.GetById(roomTypeId);
+            if (roomType != null && roomType.TypePrice.HasValue)
+            {
+                return Json(new { success = true, price = roomType.TypePrice }, JsonRequestBehavior.AllowGet);
+            }
+
+            // Oda tipi bulunamadıysa
+            return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+        }
+
+        // Tarih aralığına ve oda tipine göre uygun odaları getiren metot
+        public JsonResult GetAvailableRooms(int roomTypeId, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                // Tüm rezervasyonları getir
+                var allReservations = r.Reservationliste();
+                
+                // Seçilen oda tipine ait tüm odaları getir
+                var roomsOfType = _roomManager.Roomsliste().Where(r => r.RoomTypeId == roomTypeId).ToList();
+                
+                // Bu tarih aralığında rezervasyonu olan odaları bul
+                var reservedRoomIds = allReservations
+                    .Where(r => 
+                        // Rezervasyon tarihleri ile seçilen tarihler çakışıyorsa
+                        (r.EnterDate <= endDate && r.ExitDate >= startDate))
+                    .Select(r => r.RoomId)
+                    .Distinct()
+                    .ToList();
+                
+                // Rezervasyonu olmayan odaları filtrele
+                var availableRooms = roomsOfType
+                    .Where(r => !reservedRoomIds.Contains(r.RoomId))
+                    .Select(r => new { 
+                        RoomId = r.RoomId, 
+                        RoomNo = r.RoomNo,
+                        RoomTypeId = r.RoomTypeId
+                    })
+                    .ToList();
+                
+                return Json(new { success = true, rooms = availableRooms }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Hata: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         // Rezervasyonları listelemek için
@@ -205,6 +281,61 @@ namespace OtelUI.Controllers
         {
             var reservations = r.Reservationliste();
             return View(reservations);
+        }
+        
+        // Rezervasyon onay sayfası
+        public ActionResult Confirmation(int? id)
+        {
+            if (!id.HasValue)
+            {
+                TempData["ErrorMessage"] = "Geçersiz rezervasyon ID!";
+                return RedirectToAction("Create");
+            }
+            
+            var reservation = r.GetById(id.Value);
+            if (reservation == null)
+            {
+                TempData["ErrorMessage"] = "Rezervasyon bulunamadı!";
+                return RedirectToAction("Create");
+            }
+            
+            // Müşteri bilgilerini al
+            Customer customer = null;
+            if (reservation.CustomerID.HasValue)
+            {
+                customer = _customerManager.GetById(reservation.CustomerID.Value);
+            }
+            
+            // Oda bilgilerini al
+            Rooms room = null;
+            if (reservation.RoomId.HasValue)
+            {
+                room = _roomManager.GetById(reservation.RoomId.Value);
+            }
+            
+            // Oda tipi bilgilerini al
+            RoomType roomType = null;
+            if (room != null && room.RoomTypeId > 0)
+            {
+                roomType = _roomtypeManager.GetById(room.RoomTypeId.Value);
+            }
+            
+            // Ek hizmetleri al
+            var additionalServices = _serviceManager.AdditionalServiceliste()
+                .Where(s => s.Reservation != null && s.Reservation.ReservationID == id.Value)
+                .ToList();
+            
+            // ViewModel oluştur
+            var model = new ReservationConfirmationViewModel
+            {
+                Reservation = reservation,
+                Customer = customer,
+                Room = room,
+                RoomType = roomType,
+                AdditionalServices = additionalServices ?? new List<AdditionalService>()
+            };
+            
+            return View(model);
         }
     }
 }

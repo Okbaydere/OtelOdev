@@ -17,6 +17,11 @@ namespace Business.Concreate
             _employeeDal = employeeDal;
          }
 
+        public EmployeeManager()
+        {
+            _employeeDal = new EfEmployeesDal();
+        }
+
         public void EmployeesDelete(Employees e)
         {
             // Fiziksel silme yerine IsActive = false yaparak deaktif ediyoruz

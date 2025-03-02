@@ -1,0 +1,58 @@
+@model OtelUI.Models.LoginViewModel
+
+@{
+    ViewBag.Title = "Giriş Yap";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3><i class="fas fa-user-lock"></i> Personel Girişi</h3>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        
+                        <div class="form-group mb-3">
+                            <label for="Username"><i class="fas fa-user"></i> Kullanıcı Adı</label>
+                            @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "Kullanıcı adınızı giriniz" })
+                            @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="Password"><i class="fas fa-key"></i> Şifre</label>
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Şifrenizi giriniz" })
+                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                @Html.CheckBoxFor(m => m.RememberMe, new { @class = "form-check-input" })
+                                <label class="form-check-label" for="RememberMe">Beni Hatırla</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt"></i> Giriş Yap
+                            </button>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer text-center">
+                    <p class="mb-0">Otel Rezervasyon Sistemi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

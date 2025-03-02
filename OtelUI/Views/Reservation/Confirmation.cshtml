@@ -1,0 +1,285 @@
+@model OtelUI.Models.ReservationConfirmationViewModel
+@{
+    ViewBag.Title = "Rezervasyon Onayı";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Response.ContentType = "text/html; charset=utf-8";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h2><i class="fas fa-check-circle"></i> Rezervasyonunuz Başarıyla Oluşturuldu!</h2>
+        </div>
+        <div class="card-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            <div class="alert alert-info">
+                <p>Rezervasyon bilgileriniz aşağıda yer almaktadır. Bu bilgileri kaydetmenizi öneririz.</p>
+                <p><strong>Rezervasyon Numaranız: #@Model.Reservation.ReservationID</strong></p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h4><i class="fas fa-calendar-alt"></i> Rezervasyon Bilgileri</h4>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Rezervasyon No:</th>
+                                    <td>#@Model.Reservation.ReservationID</td>
+                                </tr>
+                                <tr>
+                                    <th>Giriş Tarihi:</th>
+                                    <td>@Model.Reservation.EnterDate.ToString("dd.MM.yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <th>Çıkış Tarihi:</th>
+                                    <td>@Model.Reservation.ExitDate.ToString("dd.MM.yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <th>Konaklama Süresi:</th>
+                                    <td>@((Model.Reservation.ExitDate - Model.Reservation.EnterDate).Days) gün</td>
+                                </tr>
+                                <tr>
+                                    <th>Kişi Sayısı:</th>
+                                    <td>@Model.Reservation.PersonNumber kişi</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h4><i class="fas fa-user"></i> Müşteri Bilgileri</h4>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Customer != null)
+                            {
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th>Adı Soyadı:</th>
+                                        <td>@Model.Customer.CustomerName @Model.Customer.CustomerSurName</td>
+                                    </tr>
+                                    <tr>
+                                        <th>T.C. Kimlik No:</th>
+                                        <td>@Model.Customer.CustomerTc</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Telefon:</th>
+                                        <td>@Model.Customer.CustomerTel</td>
+                                    </tr>
+                                    <tr>
+                                        <th>E-posta:</th>
+                                        <td>@Model.Customer.CustomermMail</td>
+                                    </tr>
+                                </table>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> Müşteri bilgileri bulunamadı.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h4><i class="fas fa-bed"></i> Oda Bilgileri</h4>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Room != null && Model.RoomType != null)
+                            {
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th>Oda Numarası:</th>
+                                        <td>@Model.Room.RoomNo</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Oda Tipi:</th>
+                                        <td>@Model.RoomType.TypeName</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Durum:</th>
+                                        <td>Rezerve Edildi</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Günlük Fiyat:</th>
+                                        <td>@(Model.RoomType.TypePrice.HasValue ? Model.RoomType.TypePrice.Value.ToString("N2") + " TL" : "Belirtilmemiş")</td>
+                                    </tr>
+                                </table>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> Oda bilgileri bulunamadı.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h4><i class="fas fa-concierge-bell"></i> Ek Hizmetler</h4>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.AdditionalServices != null && Model.AdditionalServices.Any())
+                            {
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Hizmet</th>
+                                            <th class="text-right">Fiyat</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var service in Model.AdditionalServices)
+                                        {
+                                            <tr>
+                                                <td>@service.ServiceName</td>
+                                                <td class="text-right">@(service.ServicePrice.HasValue ? service.ServicePrice.Value.ToString("N2") + " TL" : "Belirtilmemiş")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> Ek hizmet seçilmemiştir.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h4><i class="fas fa-money-bill-wave"></i> Ödeme Özeti</h4>
+                </div>
+                <div class="card-body">
+                    @{
+                        decimal totalFee = Model.Reservation.Fee.HasValue ? Model.Reservation.Fee.Value : 0;
+                        int days = (Model.Reservation.ExitDate - Model.Reservation.EnterDate).Days;
+                        if (days <= 0) { days = 1; }
+                        
+                        decimal roomFee = 0;
+                        decimal personSurcharge = 0;
+                        int personCount = Model.Reservation.PersonNumber ?? 1;
+                        
+                        if (Model.RoomType != null && Model.RoomType.TypePrice.HasValue)
+                        {
+                            // Temel oda ücreti (1 kişi için)
+                            decimal baseRoomFee = Model.RoomType.TypePrice.Value * days;
+                            
+                            // Kişi sayısına göre ek ücret
+                            if (personCount > 1)
+                            {
+                                personSurcharge = baseRoomFee * 0.30m * (personCount - 1);
+                                roomFee = baseRoomFee + personSurcharge;
+                            }
+                            else
+                            {
+                                roomFee = baseRoomFee;
+                            }
+                        }
+                        
+                        decimal serviceFee = 0;
+                        if (Model.AdditionalServices != null && Model.AdditionalServices.Any())
+                        {
+                            serviceFee = Model.AdditionalServices.Sum(s => s.ServicePrice.HasValue ? s.ServicePrice.Value : 0);
+                        }
+                    }
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <table class="table">
+                                <tr>
+                                    <th>Temel Konaklama Ücreti (@days gün):</th>
+                                    <td class="text-right">@((roomFee - personSurcharge).ToString("N2")) TL</td>
+                                </tr>
+                                @if (personCount > 1)
+                                {
+                                    <tr>
+                                        <th>Ek Kişi Ücreti (@(personCount - 1) kişi):</th>
+                                        <td class="text-right">@personSurcharge.ToString("N2") TL</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <th>Ek Hizmet Ücreti:</th>
+                                    <td class="text-right">@serviceFee.ToString("N2") TL</td>
+                                </tr>
+                                <tr class="table-dark">
+                                    <th>Toplam Ücret:</th>
+                                    <td class="text-right"><strong>@totalFee.ToString("N2") TL</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-success text-center p-4">
+                                <h4>Toplam Ücret</h4>
+                                <h2 class="mb-0">@totalFee.ToString("N2") TL</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <h5><i class="fas fa-info-circle"></i> Önemli Bilgiler:</h5>
+                <ul>
+                    <li>Giriş saati: 14:00, Çıkış saati: 12:00</li>
+                    <li>Rezervasyon iptali için en geç 48 saat önceden bildirim yapılmalıdır.</li>
+                    <li>Evcil hayvan kabul edilmemektedir.</li>
+                    <li>Sorularınız için 0212 123 45 67 numaralı telefondan bize ulaşabilirsiniz.</li>
+                </ul>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg">
+                    <i class="fas fa-home"></i> Ana Sayfaya Dön
+                </a>
+                <button class="btn btn-success btn-lg" onclick="window.print()">
+                    <i class="fas fa-print"></i> Yazdır
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        @* CSS media query için @ işaretini kaçırmak gerekiyor *@
+        @@media print {
+            .btn, .navbar, footer {
+                display: none !important;
+            }
+            
+            .card {
+                border: none !important;
+            }
+            
+            .card-header {
+                background-color: #f8f9fa !important;
+                color: #000 !important;
+                border: 1px solid #ddd !important;
+            }
+        }
+    </style>
+}
