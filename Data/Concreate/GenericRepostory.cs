@@ -51,14 +51,9 @@ namespace Data.Concreate
             return _obj.SingleOrDefault(filter);
         }
 
-        public List<T> liste()
+        public List<T> liste(Expression<Func<T, bool>> filter = null)
         {
-            return _obj.ToList();
-        }
-
-        public List<T> liste(Expression<Func<T, bool>> filter)
-        {
-            return _obj.Where(filter).ToList();
+            return filter != null ? _obj.Where(filter).ToList() : _obj.ToList();
         }
 
         public void Insert(T entity)

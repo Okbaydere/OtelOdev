@@ -45,7 +45,16 @@ namespace Business.Concreate
 
         public Customer GetByTc(string tc)
         {
-            return _customerdal.Get(x => x.CustomerTc == tc);
+            try
+            {
+                return _customerdal.Get(x => x.CustomerTc == tc);
+            }
+            catch (InvalidOperationException)
+            {
+                // Birden fazla kayıt varsa ilkini al
+                var customers = _customerdal.liste(x => x.CustomerTc == tc);
+                return customers.FirstOrDefault();
+            }
         }
     }
 }

@@ -74,7 +74,7 @@ namespace OtelUI.Controllers
                     // Hatalı form için listeleri tekrar doldur
                     model.RoomTypes = _roomtypeManager.RoomTypeliste() ?? new List<RoomType>();
                     model.AdditionalServices = _serviceManager.AdditionalServiceliste() ?? new List<AdditionalService>();
-                    model.AvailableRooms = _roomManager.Roomsliste().Where(r => r.IsAvaliable).ToList();
+                    model.AvailableRooms = _roomManager.Roomsliste().Where(r => r.IsAvaliable).ToList() ?? new List<Rooms>();
                     return View(model);
                 }
 
@@ -123,9 +123,9 @@ namespace OtelUI.Controllers
                 }
 
                 var selectedRoom = _roomManager.GetById(model.SelectedRoomId.Value);
-                if (selectedRoom == null || !selectedRoom.IsAvaliable)
+                if (selectedRoom == null)
                 {
-                    ModelState.AddModelError("", "Seçilen oda müsait değil.");
+                    ModelState.AddModelError("", "Seçilen oda bulunamadı.");
                     return View(model);
                 }
 
@@ -156,11 +156,7 @@ namespace OtelUI.Controllers
                 // 4) Rezervasyonu kaydet
                 r.ReservationInsert(newReservation);
 
-                // 5) Odayı rezerve et
-                selectedRoom.IsAvaliable = false;
-                _roomManager.RoomsUpdate(selectedRoom);
-
-                // 6) Ek hizmetleri bağla
+                // 5) Ek hizmetleri bağla
                 if (model.SelectedAdditionalServiceIDs != null && model.SelectedAdditionalServiceIDs.Any())
                 {
                     foreach (var serviceId in model.SelectedAdditionalServiceIDs)
@@ -168,7 +164,8 @@ namespace OtelUI.Controllers
                         var service = _serviceManager.GetById(serviceId);
                         if (service != null)
                         {
-                            service.Reservation = newReservation;
+                            // ReservationID'yi doğrudan atayarak çift kayıt sorununu önlüyoruz
+                            service.ReservationID = newReservation.ReservationID;
                             _serviceManager.AdditionalUpdate(service);
                         }
                     }
@@ -184,7 +181,7 @@ namespace OtelUI.Controllers
                 ModelState.AddModelError("", "Rezervasyon oluşturulurken bir hata oluştu: " + ex.Message);
                 model.RoomTypes = _roomtypeManager.RoomTypeliste() ?? new List<RoomType>();
                 model.AdditionalServices = _serviceManager.AdditionalServiceliste() ?? new List<AdditionalService>();
-                model.AvailableRooms = _roomManager.Roomsliste().Where(r => r.IsAvaliable).ToList();
+                model.AvailableRooms = _roomManager.Roomsliste().Where(r => r.IsAvaliable).ToList() ?? new List<Rooms>();
                 return View(model);
             }
         }
@@ -253,7 +250,7 @@ namespace OtelUI.Controllers
                 var reservedRoomIds = allReservations
                     .Where(r => 
                         // Rezervasyon tarihleri ile seçilen tarihler çakışıyorsa
-                        (r.EnterDate <= endDate && r.ExitDate >= startDate))
+                        (startDate < r.ExitDate && endDate > r.EnterDate))
                     .Select(r => r.RoomId)
                     .Distinct()
                     .ToList();

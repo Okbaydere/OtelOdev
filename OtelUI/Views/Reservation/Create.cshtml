@@ -78,7 +78,7 @@
                                 <div class="form-group mb-3">
                                     <label for="RoomTypeId">Oda Tipi:</label>
                                     @Html.DropDownListFor(m => m.RoomTypeId,
-                                        new SelectList(Model.RoomTypes, "RoomTypeId", "TypeName"),
+                                        new SelectList(Model.RoomTypes ?? new List<Entities.Concreate.RoomType>(), "RoomTypeId", "TypeName"),
                                         "Oda Tipi Seçiniz",
                                         new { @class = "form-control", required = "required", disabled = "disabled", id = "RoomTypeId" })
                                     <small class="text-muted" id="roomTypeMessage">Lütfen önce giriş ve çıkış tarihlerini seçiniz.</small>
@@ -86,7 +86,7 @@
                                 <div class="form-group mb-3">
                                     <label for="SelectedRoomId">Oda Seçimi:</label>
                                     @Html.DropDownListFor(m => m.SelectedRoomId,
-                                        new SelectList(Model.AvailableRooms, "RoomId", "RoomNo"),
+                                        new SelectList(Model.AvailableRooms ?? new List<Entities.Concreate.Rooms>(), "RoomId", "RoomNo"),
                                         "Oda Seçiniz",
                                         new { @class = "form-control", required = "required", disabled = "disabled", id = "SelectedRoomId" })
                                     <small class="text-muted" id="roomMessage">Lütfen önce oda tipi seçiniz.</small>
@@ -103,19 +103,28 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            @foreach (var service in Model.AdditionalServices)
+                            @if (Model.AdditionalServices != null)
                             {
-                                <div class="col-md-4 mb-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" 
-                                               class="form-check-input" 
-                                               name="SelectedAdditionalServiceIDs" 
-                                               value="@service.AdditionalServiceID"
-                                               data-price="@service.ServicePrice" />
-                                        <label class="form-check-label">
-                                            @service.ServiceName (@service.ServicePrice.Value.ToString("N2") TL)
-                                        </label>
+                                foreach (var service in Model.AdditionalServices)
+                                {
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" 
+                                                   class="form-check-input" 
+                                                   name="SelectedAdditionalServiceIDs" 
+                                                   value="@service.AdditionalServiceID"
+                                                   data-price="@service.ServicePrice" />
+                                            <label class="form-check-label">
+                                                @service.ServiceName (@service.ServicePrice.Value.ToString("N2") TL)
+                                            </label>
+                                        </div>
                                     </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="col-12">
+                                    <p class="text-muted">Ek hizmet bulunamadı.</p>
                                 </div>
                             }
                         </div>
@@ -160,9 +169,26 @@
 
             // Tarihlerin geçerli olup olmadığını kontrol et
             function areDatesValid() {
-                var startDate = $("#EnterDate").val();
-                var endDate = $("#ExitDate").val();
-                return startDate && endDate && new Date(endDate) > new Date(startDate);
+                var startDate = new Date($("#EnterDate").val());
+                var endDate = new Date($("#ExitDate").val());
+                var today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                    return false;
+                }
+                
+                if (startDate < today) {
+                    alert("Giriş tarihi bugünden önce olamaz!");
+                    return false;
+                }
+                
+                if (endDate <= startDate) {
+                    alert("Çıkış tarihi giriş tarihinden sonra olmalıdır!");
+                    return false;
+                }
+                
+                return true;
             }
 
             // Oda tipi ve oda seçimini kontrol et
@@ -219,61 +245,55 @@
                 var endDate = $("#ExitDate").val();
                 var $roomSelect = $("#SelectedRoomId");
                 
-                if (!roomTypeId || !startDate || !endDate) {
+                if (!roomTypeId || roomTypeId === "Oda Tipi Seçiniz") {
+                    $roomSelect.html('<option value="">Oda Seçiniz</option>');
+                    $roomSelect.prop('disabled', true);
+                    $("#roomMessage").text("Lütfen önce oda tipi seçiniz.");
                     return;
                 }
                 
-                // Oda seçimini sıfırla ve yükleniyor mesajı göster
-                $roomSelect.empty().append($('<option>', {
-                    value: '',
-                    text: 'Odalar yükleniyor...'
-                }));
-                $roomSelect.prop('disabled', true);
+                if (!areDatesValid()) {
+                    $roomSelect.html('<option value="">Oda Seçiniz</option>');
+                    $roomSelect.prop('disabled', true);
+                    $("#roomMessage").text("Lütfen geçerli tarih aralığı seçiniz.");
+                    return;
+                }
                 
-                // AJAX ile uygun odaları getir
+                // Yükleniyor göster
+                $roomSelect.html('<option value="">Yükleniyor...</option>');
+                $roomSelect.prop('disabled', true);
+                $("#roomMessage").text("Uygun odalar yükleniyor...");
+                
                 $.ajax({
-                    url: '@Url.Action("GetAvailableRooms", "Reservation")',
+                    url: '@Url.Action("GetAvailableRooms")',
                     type: 'GET',
-                    data: { 
+                    data: {
                         roomTypeId: roomTypeId,
                         startDate: startDate,
                         endDate: endDate
                     },
-                    success: function(response) {
-                        $roomSelect.empty();
-                        $roomSelect.append($('<option>', {
-                            value: '',
-                            text: 'Oda Seçiniz'
-                        }));
-                        
-                        if (response.success && response.rooms.length > 0) {
-                            // Uygun odaları dropdown'a ekle
-                            $.each(response.rooms, function(i, room) {
-                                $roomSelect.append($('<option>', {
-                                    value: room.RoomId,
-                                    text: 'Oda No: ' + room.RoomNo
-                                }));
-                            });
+                    success: function (data) {
+                        if (data.success) {
+                            $roomSelect.empty();
+                            $roomSelect.append('<option value="">Oda Seçiniz</option>');
                             
-                            $roomSelect.prop('disabled', false);
-                            $("#roomMessage").text('Seçilen tarihler için ' + response.rooms.length + ' uygun oda bulundu.');
-                            $("#roomMessage").removeClass('text-danger').addClass('text-success');
+                            if (data.rooms && data.rooms.length > 0) {
+                                $.each(data.rooms, function (i, room) {
+                                    $roomSelect.append('<option value="' + room.RoomId + '">Oda No: ' + room.RoomNo + '</option>');
+                                });
+                                $roomSelect.prop('disabled', false);
+                                $("#roomMessage").text("Lütfen bir oda seçiniz.");
+                            } else {
+                                $("#roomMessage").text("Seçilen tarih aralığında uygun oda bulunamadı.");
+                            }
                         } else {
-                            // Uygun oda yoksa mesaj göster
-                            $roomSelect.prop('disabled', true);
-                            $("#roomMessage").text('Seçilen tarihler için uygun oda bulunamadı!');
-                            $("#roomMessage").removeClass('text-success').addClass('text-danger');
+                            $roomSelect.html('<option value="">Oda Seçiniz</option>');
+                            $("#roomMessage").text("Hata: " + (data.message || "Odalar yüklenemedi."));
                         }
                     },
-                    error: function() {
-                        $roomSelect.empty();
-                        $roomSelect.append($('<option>', {
-                            value: '',
-                            text: 'Oda Seçiniz'
-                        }));
-                        $roomSelect.prop('disabled', true);
-                        $("#roomMessage").text('Odalar yüklenirken bir hata oluştu!');
-                        $("#roomMessage").removeClass('text-success').addClass('text-danger');
+                    error: function () {
+                        $roomSelect.html('<option value="">Oda Seçiniz</option>');
+                        $("#roomMessage").text("Sunucu hatası: Odalar yüklenemedi.");
                     }
                 });
             }
