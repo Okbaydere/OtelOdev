@@ -1,0 +1,8 @@
+Bu klasöre oda tipi resimleri ekleyin:
+
+1. kral-dairesi.jpg - Kral Dairesi için
+2. suit-oda.jpg - Suit Oda için
+3. cift-kisilik-oda.jpg - Çift Kişilik Oda için
+4. tek-kisilik-oda.jpg - Tek Kişilik Oda için
+
+Resimleri ekledikten sonra bu dosyayı silebilirsiniz.

@@ -50,10 +50,10 @@
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Rooms", "Index", "Room", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Reservation", "Create", "Reservation", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Services", "Index", "Service", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Odalarımız", "Index", "Rooms", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Rezervasyon", "Create", "Reservation", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Ek Servisler", "Index", "Service", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("İletişim", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     
                     @if (Request.IsAuthenticated && Session["EmployeeTask"] != null && Session["EmployeeTask"].ToString() == "Admin")
                     {
@@ -104,17 +104,17 @@
                     <p>Your perfect getaway destination with luxurious rooms and exceptional service.</p>
                 </div>
                 <div class="col-md-4">
-                    <h5>Quick Links</h5>
+                    <h5>Hızlı Bağlantılar</h5>
                     <ul class="list-unstyled">
-                        <li><a href="@Url.Action("Index", "Home")" class="text-white">Home</a></li>
-                        <li><a href="@Url.Action("Index", "Room")" class="text-white">Rooms</a></li>
-                        <li><a href="@Url.Action("Create", "Reservation")" class="text-white">Book Now</a></li>
-                        <li><a href="@Url.Action("Index", "Service")" class="text-white">Services</a></li>
+                        <li><a href="@Url.Action("Index", "Home")" class="text-white">Ana Sayfa</a></li>
+                        <li><a href="@Url.Action("Index", "Room")" class="text-white">Odalarımız</a></li>
+                        <li><a href="@Url.Action("Create", "Reservation")" class="text-white">Rezervasyon Yap</a></li>
+                        <li><a href="@Url.Action("Index", "Service")" class="text-white">Ek Servisler</a></li>
                         <li><a href="@Url.Action("Index", "Admin")" class="text-white">Admin Panel</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
-                    <h5>Contact Us</h5>
+                    <h5>Bize Ulaşın</h5>
                     <address>
                         <p><i class="fas fa-map-marker-alt"></i> 123 Hotel Street, City</p>
                         <p><i class="fas fa-phone"></i> +1 (123) 456-7890</p>

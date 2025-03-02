@@ -1,19 +1,21 @@
 @{
-    ViewBag.Title = "Welcome to Luxury Hotel";
+    ViewBag.Title = "Luxury Hotel'e Hoşgeldiniz";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <!-- Hero Section -->
 <div class="hero-section position-relative mb-5">
-    <div class="hero-image" style="background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'); height: 600px; background-size: cover; background-position: center;">
-        <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark" style="opacity: 0.4;"></div>
-        <div class="container position-relative h-100">
+    <div class="hero-image" style="background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'); height: 600px; background-size: cover; background-position: center;">
+        <div class="container h-100">
             <div class="row h-100 align-items-center">
-                <div class="col-md-8 text-white">
-                    <h1 class="display-4 fw-bold">Experience Luxury & Comfort</h1>
-                    <p class="lead">Discover the perfect balance of luxury, comfort, and value at our hotel.</p>
-                    <div class="mt-4">
-                        <a href="@Url.Action("Create", "Reservation")" class="btn btn-primary btn-lg me-2">Book Now</a>
-                        <a href="@Url.Action("Index", "Room")" class="btn btn-outline-light btn-lg">Explore Rooms</a>
+                <div class="col-md-6">
+                    <div class="bg-white bg-opacity-75 p-4 rounded shadow">
+                        <h1 class="display-4 fw-bold">Lüks ve Konfor Bir Arada</h1>
+                        <p class="lead">Unutulmaz bir konaklama deneyimi için doğru yerdesiniz.</p>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                            <a href="@Url.Action("Index", "Rooms")" class="btn btn-primary btn-lg px-4 me-md-2">Odalarımızı Keşfedin</a>
+                            <a href="@Url.Action("Create", "Reservation")" class="btn btn-outline-secondary btn-lg px-4">Rezervasyon Yapın</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -21,231 +23,148 @@
     </div>
 </div>
 
-<!-- Booking Form Section -->
-<div class="container mb-5">
-    <div class="card shadow">
-        <div class="card-body p-4">
-            <div class="row">
-                <div class="col-md-3 mb-3 mb-md-0">
-                    <label class="form-label">Check-in Date</label>
-                    <input type="date" class="form-control" id="quickCheckin" value="@DateTime.Now.ToString("yyyy-MM-dd")">
-                </div>
-                <div class="col-md-3 mb-3 mb-md-0">
-                    <label class="form-label">Check-out Date</label>
-                    <input type="date" class="form-control" id="quickCheckout" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")">
-                </div>
-                <div class="col-md-3 mb-3 mb-md-0">
-                    <label class="form-label">Guests</label>
-                    <select class="form-select" id="quickGuests">
-                        <option value="1">1 Guest</option>
-                        <option value="2" selected>2 Guests</option>
-                        <option value="3">3 Guests</option>
-                        <option value="4">4 Guests</option>
-                        <option value="5">5+ Guests</option>
-                    </select>
-                </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <button id="quickSearchBtn" class="btn btn-primary w-100">Check Availability</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Room Types Section -->
+<!-- Featured Rooms Section -->
 <div class="container mb-5">
     <div class="row mb-4">
         <div class="col-12 text-center">
-            <h2>Our Room Types</h2>
-            <p class="lead">Choose from our selection of comfortable and luxurious rooms</p>
+            <h2 class="display-5">Öne Çıkan Odalarımız</h2>
+            <p class="lead">Size en uygun odayı seçin ve konforlu bir konaklama deneyimi yaşayın</p>
         </div>
     </div>
+    
     <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="card-img-top" alt="Standard Room" style="height: 200px; object-fit: cover;">
+        <!-- Kral Dairesi -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm hover-zoom">
+                <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80" class="card-img-top" alt="Kral Dairesi" style="height: 200px; object-fit: cover;">
                 <div class="card-body">
-                    <h5 class="card-title">Standard Room</h5>
-                    <p class="card-text">Comfortable room with all the essential amenities for a pleasant stay.</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="btn-group">
-                            <a href="@Url.Action("Index", "Room")" class="btn btn-sm btn-outline-primary">View Details</a>
-                        </div>
-                        <small class="text-muted">From $99/night</small>
-                    </div>
+                    <h5 class="card-title">Kral Dairesi</h5>
+                    <p class="card-text">Lüks ve konforun bir arada sunulduğu özel jakuzili Kral Dairemiz.</p>
+                    <p class="text-primary fw-bold">5000₺ <small class="text-muted">/gece</small></p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="@Url.Action("Details", "Rooms", new { id = 1 })" class="btn btn-outline-primary w-100">Detayları Görüntüle</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="card-img-top" alt="Deluxe Room" style="height: 200px; object-fit: cover;">
+        
+        <!-- Suit Oda -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm hover-zoom">
+                <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="card-img-top" alt="Suit Oda" style="height: 200px; object-fit: cover;">
                 <div class="card-body">
-                    <h5 class="card-title">Deluxe Room</h5>
-                    <p class="card-text">Spacious room with premium amenities and beautiful views.</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="btn-group">
-                            <a href="@Url.Action("Index", "Room")" class="btn btn-sm btn-outline-primary">View Details</a>
-                        </div>
-                        <small class="text-muted">From $149/night</small>
-                    </div>
+                    <h5 class="card-title">Suit Oda</h5>
+                    <p class="card-text">Ayrı oturma alanı ve çalışma masası içeren konforlu Suit Odalarımız.</p>
+                    <p class="text-primary fw-bold">3000₺ <small class="text-muted">/gece</small></p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="@Url.Action("Details", "Rooms", new { id = 2 })" class="btn btn-outline-primary w-100">Detayları Görüntüle</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="card-img-top" alt="Suite" style="height: 200px; object-fit: cover;">
+        
+        <!-- Çift Kişilik Oda -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm hover-zoom">
+                <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80" class="card-img-top" alt="Çift Kişilik Oda" style="height: 200px; object-fit: cover;">
                 <div class="card-body">
-                    <h5 class="card-title">Executive Suite</h5>
-                    <p class="card-text">Luxurious suite with separate living area and exclusive amenities.</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="btn-group">
-                            <a href="@Url.Action("Index", "Room")" class="btn btn-sm btn-outline-primary">View Details</a>
-                        </div>
-                        <small class="text-muted">From $249/night</small>
-                    </div>
+                    <h5 class="card-title">Çift Kişilik Oda</h5>
+                    <p class="card-text">Konforlu queen size yatağı ve modern banyosuyla çiftler için ideal.</p>
+                    <p class="text-primary fw-bold">1500₺ <small class="text-muted">/gece</small></p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="@Url.Action("Details", "Rooms", new { id = 3 })" class="btn btn-outline-primary w-100">Detayları Görüntüle</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tek Kişilik Oda -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm hover-zoom">
+                <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="card-img-top" alt="Tek Kişilik Oda" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">Tek Kişilik Oda</h5>
+                    <p class="card-text">Tek kişilik konaklamalar için ekonomik ve konforlu bir seçenek.</p>
+                    <p class="text-primary fw-bold">1000₺ <small class="text-muted">/gece</small></p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="@Url.Action("Details", "Rooms", new { id = 4 })" class="btn btn-outline-primary w-100">Detayları Görüntüle</a>
                 </div>
             </div>
         </div>
     </div>
-    <div class="text-center mt-3">
-        <a href="@Url.Action("Index", "Room")" class="btn btn-outline-primary">View All Rooms</a>
+    
+    <div class="row mt-3">
+        <div class="col-12 text-center">
+            <a href="@Url.Action("Index", "Rooms")" class="btn btn-primary">Tüm Odalarımızı Görüntüleyin</a>
+        </div>
     </div>
 </div>
-<div>
-    <div class="btn-group">
-        <a href="@Url.Action("Create", "Reservation")" class="btn btn-primary btn-lg me-2">rESERVAT�ON</a>
 
-
-    </div>
-    <!-- Services Section -->
-    <div class="container mb-5">
-        <div class="row mb-4">
-            <div class="col-12 text-center">
-                <h2>Our Services</h2>
-                <p class="lead">Enhance your stay with our premium services</p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 text-center shadow-sm">
-                    <div class="card-body">
-                        <i class="fas fa-utensils fa-3x text-primary mb-3"></i>
-                        <h5 class="card-title">Restaurant</h5>
-                        <p class="card-text">Enjoy delicious meals at our in-house restaurant.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 text-center shadow-sm">
-                    <div class="card-body">
-                        <i class="fas fa-spa fa-3x text-primary mb-3"></i>
-                        <h5 class="card-title">Spa & Wellness</h5>
-                        <p class="card-text">Relax and rejuvenate with our spa treatments.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 text-center shadow-sm">
-                    <div class="card-body">
-                        <i class="fas fa-dumbbell fa-3x text-primary mb-3"></i>
-                        <h5 class="card-title">Fitness Center</h5>
-                        <p class="card-text">Stay fit with our modern fitness equipment.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 text-center shadow-sm">
-                    <div class="card-body">
-                        <i class="fas fa-swimming-pool fa-3x text-primary mb-3"></i>
-                        <h5 class="card-title">Swimming Pool</h5>
-                        <p class="card-text">Take a refreshing dip in our swimming pool.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="text-center mt-3">
-            <a href="@Url.Action("Index", "Service")" class="btn btn-outline-primary">View All Services</a>
+<!-- Features Section -->
+<div class="container mb-5">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h2 class="display-5">Otelimizin Özellikleri</h2>
+            <p class="lead">Konforunuz için sunduğumuz hizmetler</p>
         </div>
     </div>
-
-    <!-- Testimonials Section -->
-    <div class="container mb-5 py-5 bg-light rounded">
-        <div class="row mb-4">
-            <div class="col-12 text-center">
-                <h2>What Our Guests Say</h2>
-                <p class="lead">Hear from our satisfied guests</p>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm text-center p-3">
+                <div class="card-body">
+                    <i class="fas fa-utensils fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Restoran & Bar</h5>
+                    <p class="card-text">Zengin menü seçenekleriyle restoranımız ve barımız hizmetinizdedir.</p>
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                        </div>
-                        <p class="card-text">"Absolutely amazing experience! The rooms were clean and comfortable, and the staff was incredibly friendly and helpful."</p>
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Guest" class="rounded-circle" style="width: 50px; height: 50px;">
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Sarah Johnson</h6>
-                                <small class="text-muted">New York, USA</small>
-                            </div>
-                        </div>
-                    </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm text-center p-3">
+                <div class="card-body">
+                    <i class="fas fa-spa fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Spa & Wellness</h5>
+                    <p class="card-text">Spa merkezimizde rahatlayın ve kendinizi şımartın.</p>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                        </div>
-                        <p class="card-text">"The hotel exceeded all my expectations. The room was spacious and the view was breathtaking. I'll definitely be back!"</p>
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <img src="https://randomuser.me/api/portraits/men/46.jpg" alt="Guest" class="rounded-circle" style="width: 50px; height: 50px;">
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Michael Brown</h6>
-                                <small class="text-muted">London, UK</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star-half-alt text-warning"></i>
-                        </div>
-                        <p class="card-text">"Great location, excellent service, and delicious food. The spa services were particularly enjoyable. Highly recommended!"</p>
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Guest" class="rounded-circle" style="width: 50px; height: 50px;">
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Emily Chen</h6>
-                                <small class="text-muted">Toronto, Canada</small>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm text-center p-3">
+                <div class="card-body">
+                    <i class="fas fa-wifi fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Ücretsiz Wi-Fi</h5>
+                    <p class="card-text">Tüm otelimizde yüksek hızlı ücretsiz Wi-Fi hizmeti sunuyoruz.</p>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
+<!-- Reservation CTA -->
+<div class="container-fluid bg-light py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>Hemen Rezervasyon Yapın</h2>
+                <p class="lead mb-0">En iyi fiyat garantisi ve ücretsiz iptal seçeneği ile şimdi rezervasyon yapın.</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="@Url.Action("Create", "Reservation")" class="btn btn-primary btn-lg">Rezervasyon Yap</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .hover-zoom {
+            transition: transform 0.3s ease;
+        }
+        .hover-zoom:hover {
+            transform: scale(1.03);
+        }
+    </style>
+}

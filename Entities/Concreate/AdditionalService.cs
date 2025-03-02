@@ -15,6 +15,7 @@ namespace Entities.Concreate
         public string ServiceName { get; set; }
         public decimal? ServicePrice { get; set; }
         public string ServiceDescription { get; set; }
+        public string ImageUrl { get; set; }
         
         // Foreign key
         public int? ReservationID { get; set; }
