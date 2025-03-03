@@ -28,7 +28,7 @@
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-6">
-            <img src="@imageUrl" 
+            <img src="@imageUrl"
                  class="img-fluid rounded shadow" alt="@Model.TypeName" style="max-height: 400px; width: 100%; object-fit: cover;">
         </div>
         <div class="col-md-6">
@@ -63,60 +63,35 @@
                 </div>
             </div>
 
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Rezervasyon Tarihleri</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="enterDate">Giriş Tarihi:</label>
+                                <input type="date" id="enterDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="exitDate">Çıkış Tarihi:</label>
+                                <input type="date" id="exitDate" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dateValidationMessage" class="text-danger mb-3" style="display: none;"></div>
+                </div>
+            </div>
+
             <div class="mt-4">
-                <a href="@Url.Action("Create", "Reservation")" class="btn btn-success btn-lg w-100">Rezervasyon Yap</a>
+                <button id="makeReservation" class="btn btn-success btn-lg w-100" disabled>Rezervasyon Yap</button>
                 <a href="@Url.Action("Index", "Rooms")" class="btn btn-outline-secondary w-100 mt-2">Tüm Odaları Görüntüle</a>
             </div>
         </div>
     </div>
 
-    @if (rooms != null && rooms.Any())
-    {
-        <div class="row mt-5">
-            <div class="col-12">
-                <h3 class="mb-4">Müsait Odalar</h3>
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Oda No</th>
-                                <th>Durum</th>
-                                <th>İşlem</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var room in rooms)
-                            {
-                                <tr>
-                                    <td>@room.RoomNo</td>
-                                    <td>
-                                        @if (room.IsAvaliable)
-                                        {
-                                            <span class="badge bg-success">Müsait</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-danger">Dolu</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        @if (room.IsAvaliable)
-                                        {
-                                            <a href="@Url.Action("Create", "Reservation", new { roomId = room.RoomId })" class="btn btn-sm btn-primary">Rezervasyon Yap</a>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-sm btn-secondary" disabled>Rezervasyon Yap</button>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    }
+
 
     <div class="row mt-5 mb-5">
         <div class="col-12">
@@ -124,7 +99,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Rezervasyon Bilgileri</h5>
                     <p class="card-text">
-                        Rezervasyon yapmak için yukarıdaki "Rezervasyon Yap" butonuna tıklayabilirsiniz. 
+                        Rezervasyon yapmak için yukarıdaki "Rezervasyon Yap" butonuna tıklayabilirsiniz.
                         Rezervasyon işleminiz için giriş ve çıkış tarihlerini seçmeniz ve kişisel bilgilerinizi girmeniz gerekmektedir.
                     </p>
                     <p class="card-text">
@@ -136,11 +111,108 @@
     </div>
 </div>
 
+
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Sayfa yüklendiğinde animasyon ekleyebilirsiniz
             $('.card').addClass('animate__animated animate__fadeIn');
+
+            var today = new Date().toISOString().split('T')[0];
+            $("#enterDate").attr('min', today);
+            $("#exitDate").attr('min', today);
+
+            function validateDates() {
+                var enterDate = new Date($("#enterDate").val());
+                var exitDate = new Date($("#exitDate").val());
+                var today = new Date();
+                today.setHours(0, 0, 0, 0);
+                var $message = $("#dateValidationMessage");
+                var $reservationButton = $("#makeReservation");
+
+                if (isNaN(enterDate.getTime()) || isNaN(exitDate.getTime())) {
+                    $message.hide();
+                    $reservationButton.prop('disabled', true);
+                    return false;
+                }
+
+                if (enterDate < today) {
+                    $message.text("Giriş tarihi bugünden önce olamaz!").show();
+                    $reservationButton.prop('disabled', true);
+                    return false;
+                }
+
+                if (exitDate <= enterDate) {
+                    $message.text("Çıkış tarihi giriş tarihinden sonra olmalıdır!").show();
+                    $reservationButton.prop('disabled', true);
+                    return false;
+                }
+
+                checkRoomAvailability();
+                return true;
+            }
+
+            function checkRoomAvailability() {
+                var enterDate = $("#enterDate").val();
+                var exitDate = $("#exitDate").val();
+                var roomTypeId = '@Model.RoomTypeId';
+                var $message = $("#dateValidationMessage");
+                var $reservationButton = $("#makeReservation");
+
+                $message.removeClass("text-danger text-success")
+                    .addClass("text-muted")
+                    .text("Oda müsaitliği kontrol ediliyor...")
+                    .show();
+
+                $.ajax({
+                    url: '@Url.Action("GetAvailableRooms", "Reservation")',
+                    type: 'GET',
+                    data: {
+                        roomTypeId: roomTypeId,
+                        startDate: enterDate,
+                        endDate: exitDate
+                    },
+                    success: function (data) {
+                        if (data.success) {
+                            if (data.rooms && data.rooms.length > 0) {
+                                $message.removeClass("text-muted text-danger")
+                                    .addClass("text-success")
+                                    .text("Seçilen tarihler için uygun oda bulundu!")
+                                    .show();
+                                $reservationButton.prop('disabled', false);
+                            } else {
+                                $message.removeClass("text-muted text-success")
+                                    .addClass("text-danger")
+                                    .text("Seçilen tarih aralığında uygun oda bulunamadı.")
+                                    .show();
+                                $reservationButton.prop('disabled', true);
+                            }
+                        } else {
+                            $message.removeClass("text-muted text-success")
+                                .addClass("text-danger")
+                                .text("Hata: " + (data.message || "Oda müsaitliği kontrol edilemedi."))
+                                .show();
+                            $reservationButton.prop('disabled', true);
+                        }
+                    },
+                    error: function () {
+                        $message.removeClass("text-muted text-success")
+                            .addClass("text-danger")
+                            .text("Sunucu hatası: Oda müsaitliği kontrol edilemedi.")
+                            .show();
+                        $reservationButton.prop('disabled', true);
+                    }
+                });
+            }
+
+            $("#enterDate, #exitDate").change(validateDates);
+
+            $("#makeReservation").click(function() {
+                if (validateDates()) {
+                    var enterDate = $("#enterDate").val();
+                    var exitDate = $("#exitDate").val();
+                    window.location.href = '@Url.Action("Create", "Reservation")?roomTypeId=@Model.RoomTypeId&enterDate=' + enterDate + '&exitDate=' + exitDate;
+                }
+            });
         });
     </script>
 }

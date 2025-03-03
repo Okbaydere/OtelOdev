@@ -82,15 +82,9 @@
                                         "Oda Tipi Seçiniz",
                                         new { @class = "form-control", required = "required", disabled = "disabled", id = "RoomTypeId" })
                                     <small class="text-muted" id="roomTypeMessage">Lütfen önce giriş ve çıkış tarihlerini seçiniz.</small>
+                                    <small class="text-muted" id="roomAvailabilityMessage"></small>
                                 </div>
-                                <div class="form-group mb-3">
-                                    <label for="SelectedRoomId">Oda Seçimi:</label>
-                                    @Html.DropDownListFor(m => m.SelectedRoomId,
-                                        new SelectList(Model.AvailableRooms ?? new List<Entities.Concreate.Rooms>(), "RoomId", "RoomNo"),
-                                        "Oda Seçiniz",
-                                        new { @class = "form-control", required = "required", disabled = "disabled", id = "SelectedRoomId" })
-                                    <small class="text-muted" id="roomMessage">Lütfen önce oda tipi seçiniz.</small>
-                                </div>
+                                @Html.HiddenFor(m => m.SelectedRoomId)
                             </div>
                         </div>
                     </div>
@@ -130,6 +124,7 @@
                         </div>
                     </div>
                 </div>
+              
 
                 <!-- Fiyat Özeti -->
                 <div class="card mb-4">
@@ -155,6 +150,34 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // URL'den parametreleri al
+            function getUrlParameter(name) {
+                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                var results = regex.exec(location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
+
+            // Eğer URL'de tarih ve oda tipi parametreleri varsa, bunları otomatik seç
+            var preSelectedEnterDate = getUrlParameter('enterDate');
+            var preSelectedExitDate = getUrlParameter('exitDate');
+            var preSelectedRoomTypeId = getUrlParameter('roomTypeId');
+
+            if (preSelectedEnterDate) {
+                $("#EnterDate").val(preSelectedEnterDate);
+            }
+            if (preSelectedExitDate) {
+                $("#ExitDate").val(preSelectedExitDate);
+            }
+            if (preSelectedRoomTypeId) {
+                $("#RoomTypeId").val(preSelectedRoomTypeId);
+            }
+
+            // Eğer tüm ön seçimler varsa, oda kontrolünü başlat
+            if (preSelectedEnterDate && preSelectedExitDate && preSelectedRoomTypeId) {
+                checkDatesAndEnableSelections();
+            }
+
             // Çift gönderimi önle
             var formSubmitted = false;
             $('form').on('submit', function(e) {
@@ -194,9 +217,7 @@
             // Oda tipi ve oda seçimini kontrol et
             function checkDatesAndEnableSelections() {
                 var $roomTypeSelect = $("#RoomTypeId");
-                var $roomSelect = $("#SelectedRoomId");
                 var $roomTypeMessage = $("#roomTypeMessage");
-                var $roomMessage = $("#roomMessage");
 
                 // Tarih kontrolü
                 if (areDatesValid()) {
@@ -205,26 +226,12 @@
                     $roomTypeMessage.removeClass('text-danger').addClass('text-muted');
                 } else {
                     $roomTypeSelect.prop('disabled', true);
-                    $roomSelect.prop('disabled', true);
                     $roomTypeMessage.text('Lütfen önce geçerli giriş ve çıkış tarihlerini seçiniz.');
                     $roomTypeMessage.removeClass('text-muted').addClass('text-danger');
                     $roomTypeSelect.val('');
-                    $roomSelect.val('');
                 }
 
-                // Oda tipi seçimi kontrolü
-                if ($roomTypeSelect.val()) {
-                    $roomSelect.prop('disabled', false);
-                    $roomMessage.text('Lütfen bir oda seçiniz.');
-                    $roomMessage.removeClass('text-danger').addClass('text-muted');
-                } else {
-                    $roomSelect.prop('disabled', true);
-                    $roomMessage.text('Lütfen önce oda tipi seçiniz.');
-                    $roomMessage.removeClass('text-muted').addClass('text-danger');
-                    $roomSelect.val('');
-                }
-
-                calculateTotalPrice();
+                loadAvailableRooms();
             }
 
             // Tarih değişikliklerini dinle
@@ -234,7 +241,6 @@
 
             // Oda tipi değişikliğini dinle
             $("#RoomTypeId").change(function() {
-                checkDatesAndEnableSelections();
                 loadAvailableRooms();
             });
 
@@ -243,26 +249,23 @@
                 var roomTypeId = $("#RoomTypeId").val();
                 var startDate = $("#EnterDate").val();
                 var endDate = $("#ExitDate").val();
-                var $roomSelect = $("#SelectedRoomId");
+                var $roomAvailabilityMessage = $("#roomAvailabilityMessage");
+                var $selectedRoomId = $("#SelectedRoomId");
                 
                 if (!roomTypeId || roomTypeId === "Oda Tipi Seçiniz") {
-                    $roomSelect.html('<option value="">Oda Seçiniz</option>');
-                    $roomSelect.prop('disabled', true);
-                    $("#roomMessage").text("Lütfen önce oda tipi seçiniz.");
+                    $selectedRoomId.val('');
+                    $roomAvailabilityMessage.text("");
                     return;
                 }
                 
                 if (!areDatesValid()) {
-                    $roomSelect.html('<option value="">Oda Seçiniz</option>');
-                    $roomSelect.prop('disabled', true);
-                    $("#roomMessage").text("Lütfen geçerli tarih aralığı seçiniz.");
+                    $selectedRoomId.val('');
+                    $roomAvailabilityMessage.text("");
                     return;
                 }
                 
                 // Yükleniyor göster
-                $roomSelect.html('<option value="">Yükleniyor...</option>');
-                $roomSelect.prop('disabled', true);
-                $("#roomMessage").text("Uygun odalar yükleniyor...");
+                $roomAvailabilityMessage.removeClass("text-danger text-success").addClass("text-muted").text("Oda müsaitliği kontrol ediliyor...");
                 
                 $.ajax({
                     url: '@Url.Action("GetAvailableRooms")',
@@ -274,37 +277,29 @@
                     },
                     success: function (data) {
                         if (data.success) {
-                            $roomSelect.empty();
-                            $roomSelect.append('<option value="">Oda Seçiniz</option>');
-                            
                             if (data.rooms && data.rooms.length > 0) {
-                                $.each(data.rooms, function (i, room) {
-                                    $roomSelect.append('<option value="' + room.RoomId + '">Oda No: ' + room.RoomNo + '</option>');
-                                });
-                                $roomSelect.prop('disabled', false);
-                                $("#roomMessage").text("Lütfen bir oda seçiniz.");
+                                // Otomatik olarak ilk müsait odayı seç
+                                $selectedRoomId.val(data.rooms[0].RoomId);
+                                $roomAvailabilityMessage.removeClass("text-muted text-danger").addClass("text-success")
+                                    .text("Seçilen tarihler için uygun oda bulundu!");
                             } else {
-                                $("#roomMessage").text("Seçilen tarih aralığında uygun oda bulunamadı.");
+                                $selectedRoomId.val('');
+                                $roomAvailabilityMessage.removeClass("text-muted text-success").addClass("text-danger")
+                                    .text("Seçilen tarih aralığında uygun oda bulunamadı.");
                             }
                         } else {
-                            $roomSelect.html('<option value="">Oda Seçiniz</option>');
-                            $("#roomMessage").text("Hata: " + (data.message || "Odalar yüklenemedi."));
+                            $selectedRoomId.val('');
+                            $roomAvailabilityMessage.removeClass("text-muted text-success").addClass("text-danger")
+                                .text("Hata: " + (data.message || "Oda müsaitliği kontrol edilemedi."));
                         }
                     },
                     error: function () {
-                        $roomSelect.html('<option value="">Oda Seçiniz</option>');
-                        $("#roomMessage").text("Sunucu hatası: Odalar yüklenemedi.");
+                        $selectedRoomId.val('');
+                        $roomAvailabilityMessage.removeClass("text-muted text-success").addClass("text-danger")
+                            .text("Sunucu hatası: Oda müsaitliği kontrol edilemedi.");
                     }
                 });
             }
-
-            // Tarih değişikliklerini dinle
-            $("#EnterDate, #ExitDate").change(function() {
-                checkDatesAndEnableSelections();
-                if ($("#RoomTypeId").val()) {
-                    loadAvailableRooms();
-                }
-            });
 
             // Tüm fiyat hesaplama fonksiyonunu tanımlayalım
             function calculateTotalPrice() {

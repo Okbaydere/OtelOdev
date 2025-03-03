@@ -173,6 +173,7 @@ namespace OtelUI.Controllers
                 return View(model);
             }
         }
+       
 
         // Rezervasyon ücretini hesapla
         private int CalculateReservationFee(ReservationCreateViewModel model)
@@ -260,8 +261,6 @@ namespace OtelUI.Controllers
                 return Json(new { success = false, message = "Hata: " + ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-
- 
         
         // Rezervasyon onay sayfası
         public ActionResult Confirmation(int? id)

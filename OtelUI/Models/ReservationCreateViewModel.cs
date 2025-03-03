@@ -81,5 +81,6 @@ namespace OtelUI.Models
         public int? SelectedRoomId { get; set; }
         
         public IEnumerable<Rooms> AvailableRooms { get; set; }
+
     }
 }

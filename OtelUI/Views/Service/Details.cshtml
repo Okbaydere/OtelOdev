@@ -22,10 +22,10 @@
             imageUrl = "https://images.unsplash.com/photo-1545173168-9f1947eebb7f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80";
             break;
         case "havaalanı transferi":
-            imageUrl = "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80";
+            imageUrl = "https://images.unsplash.com/photo-1721592872787-1c711270b4dc?q=80&w=2663&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
             break;
         case "bebek bakıcısı":
-            imageUrl = "https://images.unsplash.com/photo-1516627145497-ae6968895b40?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1140&q=80";
+            imageUrl = "https://images.unsplash.com/flagged/photo-1576523163697-795a7182b1b7?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
             break;
         case "özel tur rehberi":
             imageUrl = "https://images.unsplash.com/photo-1528495612343-9ca9f4a4de28?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80";
@@ -53,7 +53,6 @@
                 <p class="display-6 fw-bold">@Model.ServicePrice₺</p>
             </div>
             <div class="d-grid gap-2">
-                <a href="@Url.Action("Create", "Reservation")" class="btn btn-primary btn-lg">Bu Hizmeti Rezervasyonunuza Ekleyin</a>
                 <a href="@Url.Action("Index", "Service")" class="btn btn-outline-secondary">Tüm Hizmetlere Dön</a>
             </div>
         </div>
@@ -75,17 +74,6 @@
                     </p>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Related Services -->
-<div class="container my-5">
-    <h2 class="mb-4">Diğer Hizmetlerimiz</h2>
-    <div class="row">
-        <!-- Bu kısım normalde controller'dan gelen verilerle doldurulacak -->
-        <div class="col-12">
-            <p>Diğer hizmetlerimizi görmek için <a href="@Url.Action("Index", "Service")">buraya tıklayın</a>.</p>
         </div>
     </div>
 </div>
